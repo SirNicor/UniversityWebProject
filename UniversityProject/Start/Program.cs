@@ -8,7 +8,7 @@ using Dapper;
 using Repository;
 using Start.Const;
 using Start.Middleware;
-using Start.StartJob;
+using Start;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json");

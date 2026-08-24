@@ -1,6 +1,6 @@
 ﻿using ServiceWorkerCronJobDemo.Services;
 
-namespace Start.StartJob;
+namespace Start;
 
 static class DoCronJob
 {
