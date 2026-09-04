@@ -19,7 +19,7 @@ public static class AddedInfrastructureServices
         services.AddTransient<IGetConnectionString, GetConnectionString>();
         services.AddScoped<IScheduleUpdate, ScheduleUpdate>();
         services.AddScoped<IDepartmentRepository, DepartmentRepository>();
-        services.AddScoped<IStudentRepository, StudentRepository>();
+        services.AddScoped<IStudentRepository, EfStudentRepository>();
         services.AddScoped<IDirectionRepository, DirectionRepository>();
         services.AddScoped<IDisciplineRepository,  DisciplineRepository>();
         services.AddScoped<IFacultyRepository, FacultyRepository>();

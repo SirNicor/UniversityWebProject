@@ -10,6 +10,16 @@ namespace EFRepository;
 
 public class EfStudentRepository(MyLogger logger, UniversityDbContext db) : IStudentRepository
 {
+    private Dictionary<string, string> _columnMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+    {
+        { "id", "Id" },
+        { "dob", "Passport.BirthData" },      
+        { "serial", "Passport.Serial" },      
+        { "number", "Passport.Number" },
+        { "address", "Passport.Address.AddressString" }, 
+        { "course", "Course" },
+        { "skiphours", "SkipHours" },
+    };
     public async Task PrintAllAsync()
     {
         var students = await(db.Students
@@ -213,8 +223,10 @@ public class EfStudentRepository(MyLogger logger, UniversityDbContext db) : IStu
 
     public async Task<(List<StudentTableDTO>, long)> GetStudentTableDto(long firstId, long count, string? sortColumn, string? sortOrder, FilterDto? filter, CancellationToken token)
     {
+        logger.Info($"EFStudentRepository, method: GetStudentTableDto, order and skip information: {firstId}, {count}, {sortColumn}, {sortOrder}");
         sortOrder = sortOrder == "null"? "ASC" : sortOrder;
         sortColumn = sortColumn == "null" ? "Id" : sortColumn;
+        sortOrder = sortOrder.ToUpper();
         IQueryable<Student> queryable = db.Students.AsNoTracking();
         if (filter.FilterCourse is not null)
         {
@@ -226,19 +238,35 @@ public class EfStudentRepository(MyLogger logger, UniversityDbContext db) : IStu
         {
             var filterDateStart = DateOnly.FromDateTime(Convert.ToDateTime(filter.FilterDate[0]));
             var filterDateEnd = DateOnly.FromDateTime(Convert.ToDateTime(filter.FilterDate[1]));
-            queryable = queryable.Where(student => student.Passport.BirthData >= filterDateStart & student.Passport.BirthData <= filterDateEnd);    
+            queryable = queryable.Where(student => student.Passport.BirthData >= filterDateStart && student.Passport.BirthData <= filterDateEnd);    
         }
 
         if (filter.FilterSkipHoursEnd is not null && filter.FilterSkipHoursStart is not null)
         {
-            queryable = queryable.Where(student => student.SkipHours >= filter.FilterSkipHoursStart & student.SkipHours <= filter.FilterSkipHoursEnd);
+            queryable = queryable.Where(student => student.SkipHours >= filter.FilterSkipHoursStart && student.SkipHours <= filter.FilterSkipHoursEnd);
         }
         if (filter.FilterTotalScore is not null)
         {
             
         }
         var countAsync = await queryable.CountAsync(token);
-        queryable = queryable.OrderBy($"{sortColumn} {sortOrder}");
+        if (sortColumn.ToLower() == "fio")
+        {
+            queryable = sortOrder=="ASC"?
+                queryable.OrderBy(s => s.Passport.FirstName + " " + s.Passport.LastName + " " + s.Passport.MiddleName)
+                :queryable.OrderByDescending(s => s.Passport.FirstName + " " + s.Passport.LastName + " " + s.Passport.MiddleName);
+        }
+        else if(sortColumn.ToLower() == "totalscore")
+        {
+            queryable =  sortOrder == "ASC"?
+                queryable.OrderBy(s => s.CountOfExamsPassed > 0 ? (double?)s.CreditScores / s.CountOfExamsPassed : 0)
+                :queryable.OrderByDescending(s => s.CountOfExamsPassed > 0 ? (double?)s.CreditScores / s.CountOfExamsPassed : 0);
+        }
+        else
+        {
+            sortColumn = _columnMap[sortColumn];
+            queryable = queryable.OrderBy($"{sortColumn} {sortOrder}");
+        }
         queryable = queryable.Skip((int)(firstId)).Take((int)count);  
         var st = await (queryable.Select(s => new StudentTableDTO()
         {
