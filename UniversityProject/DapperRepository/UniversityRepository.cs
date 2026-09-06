@@ -86,7 +86,7 @@ INNER JOIN IdMilitary im ON ad.MilitaryId = im.ID";
         try
         {
             var sqlQuery = @"INSERT INTO UNIVERSITY(NameUniversity, Budget) VALUES(@NameUniversity, @BudgetSize);
-                    SELECT SCOPE_IDENTITY();";
+                    SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
             university.IdUniversity = db.QuerySingle<int>(sqlQuery, university, transaction);
             var admin = university.IdAdministrators.Select(adminId => new
             {

@@ -30,7 +30,7 @@ public class StudentRepository(IGetConnectionString getConnectionString, MyLogge
         a.Street,
         a.HouseNumber
     FROM Student s
-    INNER JOIN Passport p ON s.PassportId = p.ID
+    INNER JOIN Passport p ON s. PassportId = p.ID
     INNER JOIN Address a ON p.AddressId = a.ID
     INNER JOIN DegreesStudy ds ON s.CourseId = ds.ID
     INNER JOIN IdMilitary im ON s.MilitaryId = im.ID";
@@ -97,7 +97,7 @@ public class StudentRepository(IGetConnectionString getConnectionString, MyLogge
         )).AsList();
         foreach (var student in students)
         {
-            student.PrintInfo(logger);
+            student.PrintDerivedClass(logger);
         }
     }
 

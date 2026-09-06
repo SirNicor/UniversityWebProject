@@ -33,9 +33,9 @@ public class InfoCouplesAttendanceJob : IJob, IInfoCouplesAttendanceJob
         }
 
         _myLogger.Info($"Максимально количество пропусков= {couplesAttendance[maxindex]}. Данный студент:");
-        _students[maxindex].PrintInfo(_myLogger);
+        _students[maxindex].PrintDerivedClass(_myLogger);
         _myLogger.Info($"Минимальное количество пропусков = {couplesAttendance[minindex]}. Данный студент:");
-        _students[minindex].PrintInfo(_myLogger);
+        _students[minindex].PrintDerivedClass(_myLogger);
     }
 
 

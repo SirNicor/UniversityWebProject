@@ -11,7 +11,7 @@ public static class EntityForPassport
         {
             entity.ToTable("Passport");
             entity.HasKey(e => e.PassportId);   
-            entity.Property(e => e.PassportId).HasColumnName("Id");
+            entity.Property(e => e.PassportId).HasColumnName("Id").ValueGeneratedOnAdd();
             entity.HasIndex(e => new { e.Serial, e.Number }, "IndexSerialNumber").IsUnique();
             entity.Property(e => e.FirstName).HasMaxLength(255);
             entity.Property(e => e.LastName).HasMaxLength(255);

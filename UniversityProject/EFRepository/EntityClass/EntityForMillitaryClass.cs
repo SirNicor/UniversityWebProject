@@ -9,8 +9,9 @@ public static class EntityForMillitaryClass
     {
         modelBuilder.Entity<MillitaryClass>(entity =>
         {
-            entity.ToTable("IdMillitary");
+            entity.ToTable("IdMilitary");
             entity.HasKey(e => e.MillitaryId);
+            entity.Property(e => e.MillitaryId).HasColumnName("Id").ValueGeneratedOnAdd();
             entity.Property(e => e.LevelId).HasColumnName("LevelID");
         });
     }

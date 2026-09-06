@@ -38,8 +38,10 @@ static class StudentRequest
         app.MapPost("/Student", async (CancellationToken token, HttpContext context) =>
         {
             var request = context.Request;
+            var options = new JsonSerializerOptions();
+            options.Converters.Add(new ConfiguratonJsonDateOnly());
             var service =  context.RequestServices.GetService<IStudentRepository>();
-            var student = await request.ReadFromJsonAsync<StudentDtoForPage>();
+            var student = await request.ReadFromJsonAsync<StudentDtoForPage>(options, token);
             var id = await service.CreateAsync(student, token);
             return Results.Json(id, statusCode: 200);
         }).RequireAuthorization("StudentAdministrator");

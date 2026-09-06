@@ -16,6 +16,7 @@ public partial class UniversityDbContext : DbContext
     public virtual DbSet<Address> Addresses { get; set; }
 
     public virtual DbSet<MillitaryClass> IdMilitaries { get; set; }
+    public virtual DbSet<DegreesStudyClass> DegreesStudy { get; set; }
 
     public virtual DbSet<Passport> Passports { get; set; }
 
@@ -24,10 +25,9 @@ public partial class UniversityDbContext : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.AddEntityAddress();
-        modelBuilder.AddEntityForDegreesStudy();
+        // modelBuilder.AddEntityForDegreesStudy();
         modelBuilder.AddEntityForMillitaryClass();
         modelBuilder.AddEntityForPassport();
-        modelBuilder.AddEntityForPerson();
         modelBuilder.AddEntityForStudent();
         OnModelCreatingPartial(modelBuilder);
     }

@@ -18,6 +18,7 @@ public static class AuthAndLoginRequest
             logger.Info("@/Authorization");
             var authRep = ctx.RequestServices.GetService<IAuthorizationRepository>();
             var user = await ctx.Request.ReadFromJsonAsync<AuthorizationDto>();
+            user.BlackList = false;
             long id = await authRep.CreateAuthorizationAsync(user);
             await ctx.Response.WriteAsJsonAsync(id);
         });

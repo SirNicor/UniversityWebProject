@@ -111,7 +111,7 @@ public async Task<long> CreateAuthorizationAsync(AuthorizationDto dto)
                         @IdTeacher,
                         @BlackList
                     );
-                    SELECT SCOPE_IDENTITY();";
+                    SELECT CAST(SCOPE_IDENTITY() AS BIGINT);";
 
         var id = await db.ExecuteScalarAsync(sql, dto, transaction);
                 

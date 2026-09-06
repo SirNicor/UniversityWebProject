@@ -4,10 +4,15 @@ using Logger;
 
 namespace UCore;
 using Logger;
-public class Student:Person
+public class Student
 {
+    public long PassportId { get; set; }
+    public int MillitaryId { get; set; }
+    public MillitaryClass Millitary { get; set; }
+    public Passport Passport { get; set; }
+    public bool CriminalRecord { get; set; }
     protected const int MinChances = 200;
-    public long? StudentId { get; set; } = null; 
+    public long StudentId { get; set; }
     public double? TotalScore { get; set; }
     public long? SkipHours { get; set; }
     public long? CreditScores { get; set; }
@@ -51,9 +56,13 @@ public class Student:Person
     {
         CountOfExamsPassed++;
     }
-    public override void PrintDerivedClass(MyLogger myLogger)
+    public void PrintDerivedClass(MyLogger myLogger)
     {
-        string message = $"Course: {Course}" + Environment.NewLine;
+        string message = $"";
+        Passport.Print(myLogger);
+        message = ($"Военный билет: {Millitary.LevelId} и судимость ") + (CriminalRecord?"есть":"нет");
+        myLogger.Info(message);
+        message = $"Course: {Course}" + Environment.NewLine;
         message += $"Общий балл ={CreditScores} и количество сданных экзаменов = {CountOfExamsPassed} и общий балл = {TotalScore}" + Environment.NewLine;
         // message += "Расположен ли в общежитии " + (_accomodationDormitories ? "Да" : "Нет");
         myLogger.Info(message);

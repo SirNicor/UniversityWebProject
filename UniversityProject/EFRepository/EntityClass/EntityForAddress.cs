@@ -11,7 +11,7 @@ public static class EntityForAddress
         {
             entity.ToTable("Address");
             entity.HasKey(e => e.AddressId);
-            entity.Property(e => e.AddressId).HasColumnName("Id");
+            entity.Property(e => e.AddressId).HasColumnName("Id").ValueGeneratedOnAdd();
             entity.Property(e => e.AddressString).HasMaxLength(255);
             entity.Property(e => e.City).HasMaxLength(255);
             entity.Property(e => e.Country).HasMaxLength(255);

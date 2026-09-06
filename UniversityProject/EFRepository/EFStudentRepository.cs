@@ -12,7 +12,7 @@ public class EfStudentRepository(MyLogger logger, UniversityDbContext db) : IStu
 {
     private Dictionary<string, string> _columnMap = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
     {
-        { "id", "Id" },
+        { "id", "StudentId" },
         { "dob", "Passport.BirthData" },      
         { "serial", "Passport.Serial" },      
         { "number", "Passport.Number" },
@@ -46,8 +46,7 @@ public class EfStudentRepository(MyLogger logger, UniversityDbContext db) : IStu
                     PlaceReceipt = s.Passport.PlaceReceipt,
                     PassportId = s.Passport.PassportId,
                 },
-                StudentId = s.Id,
-                Id = s.Id,
+                StudentId = s.StudentId,
                 ChatId =  s.ChatId,
                 CountOfExamsPassed = s.CountOfExamsPassed,
                 Course = s.Course,
@@ -60,7 +59,7 @@ public class EfStudentRepository(MyLogger logger, UniversityDbContext db) : IStu
             }).ToListAsync());
         foreach (var st in students)
         {
-            st.PrintInfo(logger);
+            st.PrintDerivedClass(logger);
         }
     }
 
@@ -90,8 +89,7 @@ public class EfStudentRepository(MyLogger logger, UniversityDbContext db) : IStu
                     PlaceReceipt = s.Passport.PlaceReceipt,
                     PassportId = s.Passport.PassportId,
                 },
-                StudentId = s.Id,
-                Id = s.Id,
+                StudentId = s.StudentId,
                 ChatId =  s.ChatId,
                 CountOfExamsPassed = s.CountOfExamsPassed,
                 Course = s.Course,
@@ -112,6 +110,8 @@ public class EfStudentRepository(MyLogger logger, UniversityDbContext db) : IStu
         var studentRow = insertDate.Student;
         studentRow.Passport = insertDate.Passport;
         studentRow.Passport.Address = insertDate.Address;
+        studentRow.Millitary = null;
+        studentRow.MillitaryId = 1;
         db.Students.Add(studentRow);
         await db.SaveChangesAsync(token);
         await transaction.CommitAsync(token);
@@ -176,8 +176,7 @@ public class EfStudentRepository(MyLogger logger, UniversityDbContext db) : IStu
                     PlaceReceipt = s.Passport.PlaceReceipt,
                     PassportId = s.Passport.PassportId,
                 },
-                StudentId = s.Id,
-                Id = s.Id,
+                StudentId = s.StudentId,
                 ChatId =  s.ChatId,
                 CountOfExamsPassed = s.CountOfExamsPassed,
                 Course = s.Course,
@@ -196,7 +195,7 @@ public class EfStudentRepository(MyLogger logger, UniversityDbContext db) : IStu
         var studentPage = await db.Students
             .Select(s => new StudentDtoForPage()
             {
-                studentId = s.Id,
+                studentId = s.StudentId,
                 criminalRecord = s.CriminalRecord,
                 skipHours = s.SkipHours,
                 creditScores = s.CreditScores,
@@ -270,7 +269,7 @@ public class EfStudentRepository(MyLogger logger, UniversityDbContext db) : IStu
         queryable = queryable.Skip((int)(firstId)).Take((int)count);  
         var st = await (queryable.Select(s => new StudentTableDTO()
         {
-            studentId = s.Id,
+            studentId = (long)s.StudentId,
             Fio = s.Passport.FirstName + " " + s.Passport.LastName + " " + s.Passport.MiddleName,
             Dob = s.Passport.BirthData,
             Address = s.Passport.Address.AddressString,
