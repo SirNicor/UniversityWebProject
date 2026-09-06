@@ -4,6 +4,7 @@ using System.Text.Json;
 using IRepositoryAll;
 using Logger;
 using Microsoft.IdentityModel.Tokens;
+using Start.Const;
 using UCore;
 
 namespace Start.Request;
@@ -96,6 +97,25 @@ public static class AuthAndLoginRequest
             request.Headers.TryGetValue("authorization", out var token);
             var authAndLoginRep = ctx.RequestServices.GetService<IAuthorizationRepository>();
             var x = token.ToString();
+            try
+            { 
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var claimsPrincipal = tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(configuration["Auth:Key"])),
+                    ValidateIssuer = false,
+                    ValidateAudience = true,
+                    ValidAudience = configuration["Auth:AUDIENCE"],
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                }, out SecurityToken validatedToken);
+            }
+            catch
+            {
+                ctx.Response.StatusCode = 401;
+                await ctx.Response.WriteAsync(MessageRequestConst.MessageUnLoginForUnauthorized);
+            }
             var ver = await authAndLoginRep.CheckAndUpdateJwtTokenAsync(x);
             if (ver is null)
             {

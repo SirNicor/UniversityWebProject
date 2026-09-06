@@ -1,10 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using Logger;
-using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
 using Start.Const;
-using Telegram.Bot.Types;
 
 namespace Start.Middleware;
 
