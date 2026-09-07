@@ -37,11 +37,11 @@ public class ScoresOfStudentsJob : IJob, IScoresOfStudentsJob
         }
 
 
-        _myLogger.Info($"Максимальные баллы = {scoreStudent[maxindex]}. Студент с данными баллами:");
+        _myLogger.Info($"Максимальные баллы = {scoreStudent[maxindex]}. Студент с данными баллами:", "UJob:ScoresOfStudentsJob");
         _students[maxindex].PrintDerivedClass(_myLogger);
-        _myLogger.Info($"Минимальные баллы = {scoreStudent[minindex]}. Студент с данными баллами:");
+        _myLogger.Info($"Минимальные баллы = {scoreStudent[minindex]}. Студент с данными баллами:", "UJob:ScoresOfStudentsJob");
         _students[minindex].PrintDerivedClass(_myLogger);
-        _myLogger.Info("Средние баллы = " + allscores / _students.Count);
+        _myLogger.Info("Средние баллы = " + allscores / _students.Count, "UJob:ScoresOfStudentsJob");
     }
 
 

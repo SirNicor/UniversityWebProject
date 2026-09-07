@@ -20,14 +20,14 @@ public class TeacherDoWorkJob : CronJobService
     public override Task StartAsync(CancellationToken cancellationToken)
     {
         _loggerMain.LogInformation("CronJob запущен");
-        _myLogger.Info("CronJob запущен");
+        _myLogger.Info("CronJob запущен", "Start:StartJob:TeacherDoWorkJob");
         return base.StartAsync(cancellationToken);
     }
 
     public override Task DoWork(CancellationToken cancellationToken)
     {
         _loggerMain.LogInformation($"{DateTime.Now:hh:mm:ss} Выполняется задача");
-        _myLogger.Info($"{DateTime.Now:hh:mm:ss} Выполняется задача");
+        _myLogger.Info($"{DateTime.Now:hh:mm:ss} Выполняется задача", "Start:StartJob:TeacherDoWorkJob");
         using (var scope = _serviceScopeFactory.CreateScope())
         {
             var teacherRepository = scope.ServiceProvider.GetRequiredService<IWorkerTeacherRepository>();
@@ -44,7 +44,7 @@ public class TeacherDoWorkJob : CronJobService
     public override Task StopAsync(CancellationToken cancellationToken)
     {
         _loggerMain.LogInformation("CronJob остановлен");
-        _myLogger.Info("CronJob остановлен");
+        _myLogger.Info("CronJob остановлен", "Start:StartJob:TeacherDoWorkJob");
         return base.StopAsync(cancellationToken);
     }
     

@@ -76,7 +76,7 @@ public class StudentRepository(IGetConnectionString getConnectionString, MyLogge
         }
         catch(Exception ex)
         {
-            logger.Error("An error occured during transaction" + ex.Message);
+            logger.Error("An error occured during transaction" + ex.Message, "DapperRepository:StudentRepository");
             throw;
         }
     }
@@ -183,7 +183,7 @@ public class StudentRepository(IGetConnectionString getConnectionString, MyLogge
         SortColumn = SortColumn == "null" ? "s.Id" : SortColumn;
         logger.Info($"GetStudentTableDto: FirstId:{FirstId},  count:{countOfRow}, sortColumn:{SortColumn}, sortOrder:{SortOrder}," +
                       $"filterCourse:{filter.FilterCourse}, BitrhDay: {filter.FilterDate[0]} {filter.FilterDate[1]}," +
-                      $"filterSkipHours: {filter.FilterSkipHoursStart} {filter.FilterSkipHoursEnd}, filtertotalScore: {filter.FilterTotalScore}");
+                      $"filterSkipHours: {filter.FilterSkipHoursStart} {filter.FilterSkipHoursEnd}, filtertotalScore: {filter.FilterTotalScore}", "DapperRepository:StudentRepository");
         string sql = $@"SELECT 
         s.Id AS studentId,
         s.SkipHours,
@@ -329,7 +329,7 @@ public class StudentRepository(IGetConnectionString getConnectionString, MyLogge
         }
         catch (Exception ex)
         {
-            logger.Error("An error occured during transaction" + ex.Message);
+            logger.Error("An error occured during transaction" + ex.Message, "DapperRepository:StudentRepository");
             throw;
         }
     }

@@ -61,11 +61,10 @@ public class Student
         string message = $"";
         Passport.Print(myLogger);
         message = ($"Военный билет: {Millitary.LevelId} и судимость ") + (CriminalRecord?"есть":"нет");
-        myLogger.Info(message);
-        message = $"Course: {Course}" + Environment.NewLine;
+        message += $"Course: {Course}" + Environment.NewLine;
         message += $"Общий балл ={CreditScores} и количество сданных экзаменов = {CountOfExamsPassed} и общий балл = {TotalScore}" + Environment.NewLine;
         // message += "Расположен ли в общежитии " + (_accomodationDormitories ? "Да" : "Нет");
-        myLogger.Info(message);
+        myLogger.Info(message, "UCore:Student");
     }
 
     // private bool _accomodationDormitories;

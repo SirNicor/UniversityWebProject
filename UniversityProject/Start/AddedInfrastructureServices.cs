@@ -1,20 +1,19 @@
 ﻿using ApiTelegramBot;
 using EFRepository;
 using Microsoft.EntityFrameworkCore;
-using StackExchange.Profiling;
-
-namespace Start;
 using Repository;
 using Logger;
 using UJob;
 using IRepositoryAll;
-using static MiniProfiler;
+
+namespace Start;
 
 public static class AddedInfrastructureServices
 {
     public static void AddInfrastructureServices(this IServiceCollection services, MyLogger logger, IConfiguration configuration)
     {
         services.AddDbContext<UniversityDbContext>(options => options.UseSqlServer(configuration.GetValue<string>("ConnectionStrings")));
+        services.AddMiniProfiler().AddEntityFramework();
         services.AddSingleton<MyLogger>(logger);
         services.AddTransient<IGetConnectionString, GetConnectionString>();
         services.AddScoped<IScheduleUpdate, ScheduleUpdate>();

@@ -105,7 +105,7 @@ SELECT
         }
         catch(Exception ex)
         {
-            logger.Error("An error occured during transaction" + ex.Message);
+            logger.Error("An error occured during transaction" + ex.Message, "DapperRepository:WorkerTeacherRepository");
             transaction.Rollback();
             throw;
         }
@@ -129,7 +129,7 @@ SELECT
     {
         using IDbConnection db = new SqlConnection(_connectionString);
         db.Execute("DELETE FROM Teacher WHERE ID = @ID", new { ID = Id});
-        logger.Info("Delete administrator - " + Id);
+        logger.Info("Delete administrator - " + Id, "DapperRepository:WorkerTeacherRepository");
     }
     public long Update(Teacher teacher)
     {
@@ -168,7 +168,7 @@ SELECT
         }
         catch(Exception ex)
         {
-            logger.Error("An error occured during transaction" + ex.Message);
+            logger.Error("An error occured during transaction" + ex.Message, "DapperRepository:WorkerTeacherRepository");
             transaction.Rollback();
             throw;
         }

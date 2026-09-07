@@ -10,7 +10,7 @@ public class Teacher:Worker
     {
         string message;
         message = $"Зарплата - {Salary}" + Environment.NewLine;
-        myLogger.Info(message);
+        myLogger.Info(message, "UCore:Teacher");
     }
 
     public long TeacherId { get; set; }

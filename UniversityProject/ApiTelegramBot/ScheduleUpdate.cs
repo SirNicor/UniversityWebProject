@@ -49,7 +49,7 @@ namespace ApiTelegramBot
                 }
                 catch (Exception ex)
                 {
-                    _logger.Error(ex.Message);
+                    _logger.Error(ex.Message, "ApiTelegramBot:ScheduleMethod");
                     throw;
                 }
             }

@@ -8,7 +8,7 @@ public class Passport
     {
         string message = $"Id: {PassportId}, FullName: {FirstName} {LastName} {MiddleName}, BirthDate: {BirthData}";
         message += Environment.NewLine + $"Serial: {Serial} Number: {Number} issued by whom: {PlaceReceipt}";
-        myLogger.Info(message);
+        myLogger.Info(message, "UCore:Passport");
         Address.Print(myLogger);
     }
     public long PassportId { get; set; }

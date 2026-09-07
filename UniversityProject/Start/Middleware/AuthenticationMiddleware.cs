@@ -36,7 +36,7 @@ public class AuthenticationMiddleware(RequestDelegate next, IConfiguration confi
                 context.User = claimsPrincipal;
                 foreach (var x in claimsPrincipal.Claims)
                 {
-                    logger.Info($"Claims - {x.Type};  {x.Value}");
+                    logger.Info($"Claims - {x.Type};  {x.Value}","AuthenticationMiddleware");
                 }
             }
             catch (SecurityTokenExpiredException)

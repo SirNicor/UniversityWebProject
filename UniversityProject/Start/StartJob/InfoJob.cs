@@ -17,14 +17,14 @@ public class InfoJob(
     public override Task StartAsync(CancellationToken cancellationToken)
     {
         loggerMain.LogInformation("CronJob запущен");
-        myLogger.Info("CronJob запущен");
+        myLogger.Info("CronJob запущен", "Start:StartJob:InfoJob");
         return base.StartAsync(cancellationToken);
     }
 
     public override Task DoWork(CancellationToken cancellationToken)
     {
         loggerMain.LogInformation($"{DateTime.Now:hh:mm:ss} Выполняется задача");
-        myLogger.Info($"{DateTime.Now:hh:mm:ss} Выполняется задача"); 
+        myLogger.Info($"{DateTime.Now:hh:mm:ss} Выполняется задача", "Start:StartJob:InfoJob"); 
         Console.WriteLine("Вывод интересующей вас инфо. Если о рабочих, введите 1, если о студентах, введите 2. Если о баллах студентов - 3, если о пропусках студентов - 4");
         int input = int.Parse(Console.ReadLine()??"0");
         switch (input)
@@ -42,7 +42,7 @@ public class InfoJob(
                 infoCouplesAttendanceJob.DoWorkAsync();
                 break;
             default:
-                myLogger.Info("Выход за возможный выбор");
+                myLogger.Info("Выход за возможный выбор", "Start:StartJob:InfoJob");
                 Console.WriteLine("Повторите ввод");
                 break;
         }
@@ -52,7 +52,7 @@ public class InfoJob(
     public override Task StopAsync(CancellationToken cancellationToken)
     {
         loggerMain.LogInformation("CronJob остановлен");
-        myLogger.Info("CronJob остановлен");
+        myLogger.Info("CronJob остановлен", "Start:StartJob:InfoJob");
         return base.StopAsync(cancellationToken);
     }
 }

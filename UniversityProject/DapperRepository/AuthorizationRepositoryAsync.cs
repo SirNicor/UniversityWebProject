@@ -132,7 +132,7 @@ public async Task<long> CreateAuthorizationAsync(AuthorizationDto dto)
     }
     catch (Exception ex)
     {
-        _logger.Error($"Error creating authorization: {ex.Message}");
+        _logger.Error($"Error creating authorization: {ex.Message}", "DapperRepository:AuthorizationRepositoryAsync");
         throw;
     }
 }
@@ -190,7 +190,7 @@ public async Task<long> UpdateAuthorizationAsync(AuthorizationDto dto)
     }
     catch (Exception ex)
     {
-        _logger.Error($"Error updating authorization: {ex.Message}");
+        _logger.Error($"Error updating authorization: {ex.Message}", "DapperRepository:AuthorizationRepositoryAsync");
         throw;
     }
 }
@@ -271,7 +271,7 @@ public async Task<bool> CheckPasswordAsync(string password, long id)
         }
         catch (Exception ex)
         {
-            _logger.Error($"Error getting token by signature {token}: {ex.Message}");
+            _logger.Error($"Error getting token by signature {token}: {ex.Message}", "DapperRepository:AuthorizationRepositoryAsync");
             throw;
         }
     }
@@ -312,7 +312,7 @@ public async Task<bool> CheckPasswordAsync(string password, long id)
         }
         catch (Exception ex)
         {
-            _logger.Error($"Error checking and updating token: {ex.Message}");
+            _logger.Error($"Error checking and updating token: {ex.Message}", "DapperRepository:AuthorizationRepositoryAsync");
             throw;
         }
     }
@@ -335,7 +335,7 @@ public async Task<bool> CheckPasswordAsync(string password, long id)
         }
         catch (Exception ex)
         {
-            _logger.Error($"Error creating token: {ex.Message}");
+            _logger.Error($"Error creating token: {ex.Message}", "DapperRepository:AuthorizationRepositoryAsync");
             throw;
         }
     }
@@ -353,12 +353,12 @@ public async Task<bool> CheckPasswordAsync(string password, long id)
             var affectedRows = await db.ExecuteAsync(sql, new { token = tokenHash });
             if (affectedRows == 0)
             {
-                _logger.Warning($"No token found with signature: {token}");
+                _logger.Warning($"No token found with signature: {token}", "DapperRepository:AuthorizationRepositoryAsync");
             }
         }
         catch (Exception ex)
         {
-            _logger.Error($"Error deleting token: {ex.Message}");
+            _logger.Error($"Error deleting token: {ex.Message}", "DapperRepository:AuthorizationRepositoryAsync");
             throw;
         }
         

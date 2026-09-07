@@ -8,7 +8,6 @@ using Dapper;
 using Repository;
 using Start.Const;
 using Start.Middleware;
-using Start;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddJsonFile("appsettings.json");
@@ -41,6 +40,8 @@ try
         options.AddPolicy("StudentAdministrator", policy => policy.RequireClaim(ClaimTypes.Role,AuthorizationPolicyConst.StudentAdministrator));
     });
     var app = builder.Build();
+    app.UseMiniProfiler();
+    app.UseMiniProfilerLog();
     app.UseDiffEndpoints(logger, appConfig);
     app.UseCors(builder => builder.AllowAnyOrigin()
         .AllowAnyHeader()
@@ -63,6 +64,6 @@ try
 }
 catch (Exception ex)
 {
-    logger.Error("Error in general trycatch " + ex.Message + ex.Source + ex.StackTrace + ex.TargetSite);
+    logger.Error("Error in general trycatch " + ex.Message + ex.Source + ex.StackTrace + ex.TargetSite, "General try catch: ");
 }
     

@@ -37,7 +37,7 @@ public class StartBot : IStartBot
             DropPendingUpdates = true
         };
         var me = await _botClient.GetMe();
-        _logger.Info($"{me.FirstName} запущен!");
+        _logger.Info($"{me.FirstName} запущен!", "ApiTelegramBot:StartBot");
         await _botClient.ReceiveAsync(
             updateHandler: HandleUpdateAsync,
             errorHandler: HandlePollingErrorAsync,
@@ -65,7 +65,7 @@ public class StartBot : IStartBot
                             $" ChatType: {type}, MessageText: {messageText}, Photo: {message.Photo}" +
                             $", Audio: {message.Audio},  Video: {message.Video}" +
                             $"UserStateRequest: {userStateReg.RequestType}";
-        _logger.Info(loggerInfo);
+        _logger.Info(loggerInfo, "ApiTelegramBot:StartBot");
         IRegistrationClass registrationClass = null;
         switch (type)
         {

@@ -51,11 +51,11 @@ public class SalaryJob:IJob, ISalaryJob
             }
             FullSalary += salaryWorkers[i];
         }
-        _myLogger.Info($"Максимальная зп = {salaryWorkers[maxindex]}. Рабочий с данной зп:");
+        _myLogger.Info($"Максимальная зп = {salaryWorkers[maxindex]}. Рабочий с данной зп:", "UJob:SalaryJob");
         workers[maxindex].PrintInfo(_myLogger);
-        _myLogger.Info($"Минимальная зп = {salaryWorkers[minindex]}. Рабочий с данной зп:");
+        _myLogger.Info($"Минимальная зп = {salaryWorkers[minindex]}. Рабочий с данной зп:", "UJob:SalaryJob");
         workers[minindex].PrintInfo(_myLogger);
-        _myLogger.Info("Средняя зп = " + (double)FullSalary/lenWorkers);
+        _myLogger.Info("Средняя зп = " + (double)FullSalary/lenWorkers, "UJob:SalaryJob");
     }
     private readonly MyLogger _myLogger;
     private Timer _timer;

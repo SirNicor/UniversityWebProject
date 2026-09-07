@@ -47,7 +47,7 @@ public class RoleRepository(IGetConnectionString getConnectionString, MyLogger l
         }
         catch (Exception ex)
         {
-            logger.Error($"Error getting role access for RoleId {roleId}: {ex.Message}");
+            logger.Error($"Error getting role access for RoleId {roleId}: {ex.Message}", "DapperRepository:RoleRepository");
             throw;
         }
     }
@@ -94,7 +94,7 @@ public class RoleRepository(IGetConnectionString getConnectionString, MyLogger l
         }
         catch (Exception ex)
         {
-            logger.Error($"Error getting role access for roles [{string.Join(",", rolesId)}]: {ex.Message}");
+            logger.Error($"Error getting role access for roles [{string.Join(",", rolesId)}]: {ex.Message}", "DapperRepository:RoleRepository");
             throw;
         }
     }

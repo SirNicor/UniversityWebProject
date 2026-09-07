@@ -95,7 +95,7 @@ public class DisciplineRepository(IGetConnectionString getConnectionString, MyLo
         }
         catch (Exception ex)
         {
-            logger.Error("An error occured during transaction" + ex.Message);
+            logger.Error("An error occured during transaction" + ex.Message, "DapperRepository:DisciplineRepository");
             transaction.Rollback();
             throw;
         }
@@ -115,7 +115,7 @@ public class DisciplineRepository(IGetConnectionString getConnectionString, MyLo
         }
         catch (Exception ex)
         {
-            logger.Error("An error occured during transaction" + ex.Message);
+            logger.Error("An error occured during transaction" + ex.Message, "DapperRepository:DisciplineRepository");
             transaction.Rollback();
         }
     }
@@ -143,7 +143,7 @@ public class DisciplineRepository(IGetConnectionString getConnectionString, MyLo
         }
         catch (Exception ex)
         {
-            logger.Error("An error occured during transaction" + ex.Message);
+            logger.Error("An error occured during transaction" + ex.Message, "DapperRepository:DisciplineRepository");
             transaction.Rollback();
             throw;
         }

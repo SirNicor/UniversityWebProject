@@ -20,7 +20,7 @@ static class StudentRequest
             var service = context.RequestServices.GetService<IStudentRepository>();
             var allCount = await service.GetCountAsync(token);
             var countOfPage = allCount / count +  (allCount % count == 0? 0: 1);
-            logger.Info($"student/Page/{count} = > {countOfPage}");
+            logger.Info($"student/Page/{count} = > {countOfPage}", "StudentRequest");
             return Results.Json(countOfPage, statusCode: 200);
         }).RequireAuthorization("Teacher");
         app.MapGet("/Student", async(string? filter, string? sortKey, string? sortOrder, int page, int count, CancellationToken token,  HttpContext context) =>
@@ -32,7 +32,7 @@ static class StudentRequest
                 sortOrder, filterDto, token);
             var allCount = studentAndPage.Item2;
             var countOfPage = allCount / count +  (allCount % count == 0? 0: 1);
-            logger.Info($"student/{page} {count} {firstId} {sortKey} {sortOrder}");
+            logger.Info($"student/{page} {count} {firstId} {sortKey} {sortOrder}", "StudentRequest");
             return Results.Json(new Tuple<List<StudentTableDTO>, long>(studentAndPage.Item1, countOfPage), statusCode: 200);
         }).RequireAuthorization("Teacher");
         app.MapPost("/Student", async (CancellationToken token, HttpContext context) =>

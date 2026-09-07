@@ -78,7 +78,7 @@ public class WorkerAdministratorRepository(IGetConnectionString getConnectionStr
                 return Administrator;
             }, new{ ID = id},
             splitOn: "MillitaryId, PassportId, AddressId").FirstOrDefault();
-        logger.Info($"Return administrator - {administrator.Passport.Serial}, Number: {administrator.Passport.Number}");
+        logger.Info($"Return administrator - {administrator.Passport.Serial}, Number: {administrator.Passport.Number}", "DapperRepository:WorkerAdministratorRepository");
         return administrator;
     }   
     
@@ -120,7 +120,7 @@ public class WorkerAdministratorRepository(IGetConnectionString getConnectionStr
         }
         catch(Exception ex)
         {
-            logger.Error("An error occured during transaction" + ex.Message);
+            logger.Error("An error occured during transaction" + ex.Message, "DapperRepository:WorkerAdministratorRepository");
             transaction.Rollback();
             throw;
         }
@@ -163,7 +163,7 @@ public class WorkerAdministratorRepository(IGetConnectionString getConnectionStr
         }
         catch(Exception ex)
         {
-            logger.Error("An error occured during transaction" + ex.Message);
+            logger.Error("An error occured during transaction" + ex.Message, "DapperRepository:WorkerAdministratorRepository");
             transaction.Rollback();
             throw;
         }

@@ -15,7 +15,7 @@ static class AddressRequest
         app.MapGet("/Address/Suggest/{address}", async (string address, CancellationToken token, HttpContext context) =>
         {
             var suggest = FunctionForRequest.SuggestAddress(address, config, token).Result;
-            logger.Info($"Suggest {suggest.suggestions}");
+            logger.Info($"Suggest {suggest.suggestions}", "AddressRequest");
             await context.Response.WriteAsJsonAsync(suggest.suggestions, cancellationToken: token);
         });
         app.MapGet("/Address/Clean/{address}", async (string address, HttpContext context) =>

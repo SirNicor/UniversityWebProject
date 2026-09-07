@@ -112,7 +112,7 @@ JOIN University un ON un.Id = fc.IdUniversity ";
         }
         catch (Exception ex)
         {
-            logger.Error("An error occured during transaction" + ex.Message);
+            logger.Error("An error occured during transaction" + ex.Message, "DapperRepository:FacultyRepository");
             transaction.Rollback();
         }
     }
@@ -140,7 +140,7 @@ JOIN University un ON un.Id = fc.IdUniversity ";
         }
         catch (Exception ex)
         {
-            logger.Error("An error occured during transaction" + ex.Message);
+            logger.Error("An error occured during transaction" + ex.Message, "DapperRepository:FacultyRepository");
             transaction.Rollback();
             throw;
         }

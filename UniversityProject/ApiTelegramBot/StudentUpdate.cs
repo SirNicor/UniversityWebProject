@@ -44,7 +44,7 @@ public class StudentUpdate : IStudentUpdate
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message);
+                _logger.Error(ex.Message, "ApiTelegramBot:StudentUpdate");
                 throw;
             }
         }

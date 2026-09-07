@@ -19,7 +19,7 @@ public class ExceptionHandlerMiddleware(RequestDelegate next, MyLogger logger)
         }
         catch (Exception ex)
         {
-            logger.Error(ex.Message + " " + ex.StackTrace + Environment.NewLine + "Source =" + ex.Source);
+            logger.Error(ex.Message + " " + ex.StackTrace + Environment.NewLine + "Source =" + ex.Source,"ExceptionHandlerMiddleware");
             if (!context.Response.HasStarted)
             {
                 context.Response.Clear();

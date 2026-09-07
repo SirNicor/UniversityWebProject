@@ -100,7 +100,7 @@ INNER JOIN IdMilitary im ON ad.MilitaryId = im.ID";
         }
         catch (Exception ex)
         {
-            logger.Error("An error occured during transaction" + ex.Message);
+            logger.Error("An error occured during transaction" + ex.Message, "DapperRepository:UniversityRepository");
             transaction.Rollback();
             throw;
         }
@@ -129,7 +129,7 @@ INNER JOIN IdMilitary im ON ad.MilitaryId = im.ID";
         }
         catch (Exception ex)
         {
-            logger.Error("An error occured during transaction" + ex.Message);
+            logger.Error("An error occured during transaction" + ex.Message, "DapperRepository:UniversityRepository");
             transaction.Rollback();
             throw;
         }
@@ -147,7 +147,7 @@ INNER JOIN IdMilitary im ON ad.MilitaryId = im.ID";
         }
         catch (Exception ex)
         {
-            logger.Error("An error occured during transaction" + ex.Message);
+            logger.Error("An error occured during transaction" + ex.Message, "DapperRepository:UniversityRepository");
             transaction.Rollback();
         }
     }

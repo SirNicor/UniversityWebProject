@@ -1,63 +1,60 @@
 ﻿namespace Logger;
 
-using System.Diagnostics;
-using Microsoft.VisualBasic.CompilerServices;
-using System.Text.Json;
 public abstract class MyLogger:IMyLogger
 {
-    public LevelLoger MinLog { get; set; }
+    public LevelLoger MinLog { get; set; }      
     public bool ExplainLog { get; set; }
     protected DateTime CurrentTime;
-    protected abstract void Log(LevelLoger levelLoger,  string message);
-    protected abstract void Log(LevelLoger levelLoger, string message, Exception exception);
+    protected abstract void Log(LevelLoger levelLoger,  string message, string typeMethod);
+    protected abstract void Log(LevelLoger levelLoger, string message, string typeMethod, Exception exception);
 
-    public void Debug(string message)
+    public void Debug(string message, string typeMethod)
     {
-        Log(LevelLoger.DEBUG, message);
+        Log(LevelLoger.DEBUG, message, typeMethod);
     }
 
-    public void Debug(string message, Exception exception)
+    public void Debug(string message, string typeMethod, Exception exception)
     {
-        Log(LevelLoger.DEBUG, message, exception);
+        Log(LevelLoger.DEBUG, message, typeMethod, exception);
     }
 
-    public void Info(string message)
+    public void Info(string message, string typeMethod)
     {
-        Log(LevelLoger.INFO, message);
+        Log(LevelLoger.INFO, message, typeMethod);
     }
 
-    public void Info(string message, Exception exception)
+    public void Info(string message, string typeMethod, Exception exception)
     {
-        Log(LevelLoger.INFO, message, exception);
+        Log(LevelLoger.INFO, message, typeMethod, exception);
     }
 
-    public void Warning(string message)
+    public void Warning(string message, string typeMethod)
     {
-        Log(LevelLoger.WARNING, message);
+        Log(LevelLoger.WARNING, message, typeMethod);
     }
 
-    public void Warning(string message, Exception exception)
+    public void Warning(string message, string typeMethod, Exception exception)
     {
-        Log(LevelLoger.WARNING, message, exception);
+        Log(LevelLoger.WARNING, message, typeMethod, exception);
     }
 
-    public void Error(string message)
+    public void Error(string message, string typeMethod)
     {
-        Log(LevelLoger.ERROR, message);
+        Log(LevelLoger.ERROR, message, typeMethod);
     }
 
-    public void Error(string message, Exception exception)
+    public void Error(string message, string typeMethod, Exception exception)
     {
-        Log(LevelLoger.ERROR, message, exception);
+        Log(LevelLoger.ERROR, message, typeMethod, exception);
     }
 
-    public void Fatal(string message)
+    public void Fatal(string message, string typeMethod)
     {
-        Log(LevelLoger.FATAL, message);
+        Log(LevelLoger.FATAL, message, typeMethod);
     }
 
-    public void Fatal(string message, Exception exception)
+    public void Fatal(string message, string typeMethod, Exception exception)
     {
-        Log(LevelLoger.FATAL, message, exception);
+        Log(LevelLoger.FATAL, message, typeMethod, exception);
     }
 }

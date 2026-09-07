@@ -11,8 +11,8 @@ public class LoggingMiddleware(RequestDelegate next, MyLogger logger, IConfigura
     {
         var request = context.Request;
         logger.Info($"Request baseUrl = {request.Host}, path = {request.Path}," +
-                     $"contentType : {request.ContentType}, method =  {request.Method}");
+                     $"contentType : {request.ContentType}, method =  {request.Method}", "LoggingMiddleware");
         await next(context);
-        logger.Info($"Request: path = {request.Path}, contentType : {context.Response.ContentType}");
+        logger.Info($"Request: path = {request.Path}, contentType : {context.Response.ContentType}", "LoggingMiddleware");
     }
 }

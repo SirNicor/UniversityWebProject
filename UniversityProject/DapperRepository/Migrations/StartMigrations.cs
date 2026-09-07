@@ -14,7 +14,7 @@ public class StartMigrations
 
     public void Start()
     {   
-        _logger.Info("Migrated start");
+        _logger.Info("Migrated start", "DapperRepository:Migrations:StartMigrations");
         var serviceProvider = new ServiceCollection()
             .AddFluentMigratorCore()
             .ConfigureRunner(rb => rb
@@ -25,7 +25,7 @@ public class StartMigrations
         var scope = serviceProvider.CreateAsyncScope();     
         var runner = scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
         runner.MigrateUp();
-        _logger.Info("Migrated up");
+        _logger.Info("Migrated up", "DapperRepository:Migrations:StartMigrations");
     }
     
     private IConfiguration _configuration;

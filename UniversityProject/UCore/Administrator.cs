@@ -6,7 +6,7 @@ public class Administrator : Worker
     {
         string message;
         message = $"Зарплата - {Salary}" + Environment.NewLine;
-        myLogger.Info(message);
+        myLogger.Info(message, "UCore:Administrator");
     }
 
     public override void DoWork(MyLogger myLogger)

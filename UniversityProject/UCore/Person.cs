@@ -7,10 +7,10 @@
         public void PrintInfo(MyLogger myLogger)
         {
             string message = $"";
-            myLogger.Info(message);
+            myLogger.Info(message, "UCore:Person");
             Passport.Print(myLogger);
             message = ($"Военный билет: {Millitary.LevelId} и судимость ") + (CriminalRecord?"есть":"нет");
-            myLogger.Info(message);
+            myLogger.Info(message, "UCore:Person");
             PrintDerivedClass(myLogger);
         }
         public abstract void PrintDerivedClass(MyLogger myLogger);

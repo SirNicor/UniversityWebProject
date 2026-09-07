@@ -15,11 +15,11 @@ public class Address
     {
         if (AddressString == "")
         {
-            myLogger.Info($"Id: {AddressId}, FullAddress: {AddressString}");
+            myLogger.Info($"Id: {AddressId}, FullAddress: {AddressString}", "UCore:Address");
         }
         else
         {
-            myLogger.Info($"Id: {AddressId}, FullAddress: " + Country + " " + City + " " + Street + " " + HouseNumber);
+            myLogger.Info($"Id: {AddressId}, FullAddress: " + Country + " " + City + " " + Street + " " + HouseNumber, "UCore:Address");
         }
     }
     public long AddressId { get; set; }

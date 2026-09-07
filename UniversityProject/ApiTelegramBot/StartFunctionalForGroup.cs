@@ -50,7 +50,7 @@ public class StartFunctionalForGroup : IStartFunctionalForGroup
     public async Task Functional(ChatId id, string messageText, ITelegramBotClient botClient, ChatType type,  UserStateRegistration userState)
     {
         _logger.Info($"Start Functional, chatId: {id}, messageText: {messageText},  type: {type}" +
-                     $"UserState: {userState.RequestType}");
+                     $"UserState: {userState.RequestType}", "ApiTelegramBot:StartFunctionalForGroup");
         if(type == ChatType.Private)
         {
             dirId = (long)_userStateTelegramRepository.Get((long)id.Identifier).DirectionId;

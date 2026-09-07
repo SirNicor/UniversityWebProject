@@ -16,7 +16,7 @@ public static class AuthAndLoginRequest
     {
         app.MapPost("/Authorization", async (HttpContext ctx) =>
         {
-            logger.Info("@/Authorization");
+            logger.Info("@/Authorization", "AddAuthAndLoginRequest");
             var authRep = ctx.RequestServices.GetService<IAuthorizationRepository>();
             var user = await ctx.Request.ReadFromJsonAsync<AuthorizationDto>();
             user.BlackList = false;
@@ -25,7 +25,7 @@ public static class AuthAndLoginRequest
         });
         app.MapPost("/Login", async (HttpContext ctx, CancellationToken token) =>
         {
-            logger.Info("@/Login");
+            logger.Info("@/Login", "AddAuthAndLoginRequest");
             var authAndLoginRep = ctx.RequestServices.GetService<IAuthorizationRepository>();
             var roleRep = ctx.RequestServices.GetService<IRoleRepository>();
             using var reader = new StreamReader(ctx.Request.Body);
@@ -92,7 +92,7 @@ public static class AuthAndLoginRequest
         });
         app.MapGet("/ResetAccessToken", async (HttpContext ctx) =>
         {
-            logger.Info("@/ResetAccessToken");
+            logger.Info("@/ResetAccessToken", "AddAuthAndLoginRequest");
             var request = ctx.Request;
             request.Headers.TryGetValue("authorization", out var token);
             var authAndLoginRep = ctx.RequestServices.GetService<IAuthorizationRepository>();

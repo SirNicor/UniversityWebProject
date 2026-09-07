@@ -222,7 +222,8 @@ public class EfStudentRepository(MyLogger logger, UniversityDbContext db) : IStu
 
     public async Task<(List<StudentTableDTO>, long)> GetStudentTableDto(long firstId, long count, string? sortColumn, string? sortOrder, FilterDto? filter, CancellationToken token)
     {
-        logger.Info($"EFStudentRepository, method: GetStudentTableDto, order and skip information: {firstId}, {count}, {sortColumn}, {sortOrder}");
+        logger.Info($"EFStudentRepository, method: GetStudentTableDto, " +
+                    $"order and skip information: {firstId}, {count}, {sortColumn}, {sortOrder}","EFRepository:EFStudentRepository");
         sortOrder = sortOrder == "null"? "ASC" : sortOrder;
         sortColumn = sortColumn == "null" ? "Id" : sortColumn;
         sortOrder = sortOrder.ToUpper();

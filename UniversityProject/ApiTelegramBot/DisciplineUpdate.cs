@@ -42,7 +42,7 @@ public class DisciplineUpdate : IDisciplineUpdate
             }
             catch (Exception ex)
             {
-                _logger.Error(ex.Message);
+                _logger.Error(ex.Message, "ApiTelegramBot:DisciplineMethod");
                 throw;
             }
         }
