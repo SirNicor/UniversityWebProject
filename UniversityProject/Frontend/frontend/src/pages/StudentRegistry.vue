@@ -130,7 +130,7 @@ import {onBeforeUnmount, onMounted, reactive, ref, watch} from 'vue'
       let response = await StudentResponse.getCountPage(count);
       pageCount.value = response.data;
       await loadData();
-      createVisibility.value = userAccessPage().canAccessForAllOperationName("StudentRegistry", ["Create", "All"]);
+      createVisibility.value = userAccessPage().canAccessForAllOperationName("StudentPage", ["Create", "All"]);
     }
     catch (error) {
       console.error(error);

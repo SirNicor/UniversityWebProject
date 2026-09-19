@@ -9,31 +9,8 @@ using IRepositoryAll;
 public class StudentRepository(IGetConnectionString getConnectionString, MyLogger logger) : IStudentRepository
 {
     const string SQlQuerySelect = @"
-    SELECT 
-        s.Id AS PersonId,
-        s.SkipHours,
-        s.CountOfExamsPassed, 
-        s.CreditScores,
-        ds.LevelDegrees,
-        im.LevelId AS LevelId,
-        im.Id AS MillitaryId,
-        p.ID AS PassportID,
-        p.Serial,
-        p.Number,
-        p.FirstName,
-        p.LastName,
-        p.MiddleName,
-        p.BirthData,
-        a.ID AS AddressID,
-        a.Country,
-        a.City,
-        a.Street,
-        a.HouseNumber
-    FROM Student s
-    INNER JOIN Passport p ON s. PassportId = p.ID
-    INNER JOIN Address a ON p.AddressId = a.ID
-    INNER JOIN DegreesStudy ds ON s.CourseId = ds.ID
-    INNER JOIN IdMilitary im ON s.MilitaryId = im.ID";
+        SELECT *
+        FROM view_student";
     readonly string _connectionString = getConnectionString.ReturnConnectionString();
 
     public async Task<long> CreateAsync(StudentDtoForPage student, CancellationToken token)
@@ -121,7 +98,7 @@ public class StudentRepository(IGetConnectionString getConnectionString, MyLogge
     {
         await using var db = new SqlConnection(_connectionString);
         await db.OpenAsync();
-        var sqlQuery = SQlQuerySelect + " WHERE s.ID = @id";
+        var sqlQuery = SQlQuerySelect + " WHERE PersonId = @id";
         var students = await db.QueryAsync<Student, Passport, Address, MillitaryClass, Student>(sqlQuery,
                 (student, passport, address, millitaryClass) =>
                 {
@@ -142,34 +119,30 @@ public class StudentRepository(IGetConnectionString getConnectionString, MyLogge
         await db.OpenAsync(token);
         const string sqlQuerySelect = @"
     SELECT 
-        s.Id AS studentId,
-        s.SkipHours,
-        s.CountOfExamsPassed, 
-        s.CreditScores,
-        s.CriminalRecord,
-        s.CourseID as course,
-        ds.LevelDegrees,
-        im.LevelId AS MilitaryIdAvailability,
-        p.ID AS passportID,
-        p.Serial,
-        p.Number,
-        p.placeReceipt,
-        p.FirstName,
-        p.LastName,
-        p.MiddleName,
-        p.BirthData as dob,
-        a.ID AS addressID,
-        a.AddressString as Address,
-        a.Country,
-        a.City,
-        a.Street as state,
-        a.HouseNumber
-    FROM Student s
-    INNER JOIN Passport p ON s.PassportId = p.ID
-    INNER JOIN Address a ON p.AddressId = a.ID
-    INNER JOIN DegreesStudy ds ON s.CourseId = ds.ID
-    INNER JOIN IdMilitary im ON s.MilitaryId = im.ID
-    WHERE s.Id = @studentId;";
+        PersonId AS studentId,
+        SkipHours,
+        CountOfExamsPassed, 
+        CreditScores,
+        CriminalRecord,
+        CourseID as course,
+        LevelDegrees,
+        LevelId AS MilitaryIdAvailability,
+        PassportID AS passportID,
+        Serial,
+        Number,
+        placeReceipt,
+        FirstName,
+        LastName,
+        MiddleName,
+        BirthData as dob,
+        AddressID AS addressID,
+        AddressString as Address,
+        Country,
+        City,
+        Street as state,
+        HouseNumber
+    FROM view_student
+    WHERE PersonId = @studentId;";
         return await db.QueryFirstOrDefaultAsync<StudentDtoForPage>(sqlQuerySelect, new {studentId});
     }
 
@@ -177,37 +150,31 @@ public class StudentRepository(IGetConnectionString getConnectionString, MyLogge
         FilterDto? filter, CancellationToken token)
     {
         var builder = new SqlBuilder();
-        SortOrder = SortOrder ?? "ASC";
-        SortColumn = SortColumn ?? "s.Id";
         SortOrder = SortOrder == "null"? "ASC" : SortOrder;
-        SortColumn = SortColumn == "null" ? "s.Id" : SortColumn;
+        SortColumn = SortColumn == "null" ? "studentId" : SortColumn;
         logger.Info($"GetStudentTableDto: FirstId:{FirstId},  count:{countOfRow}, sortColumn:{SortColumn}, sortOrder:{SortOrder}," +
                       $"filterCourse:{filter.FilterCourse}, BitrhDay: {filter.FilterDate[0]} {filter.FilterDate[1]}," +
                       $"filterSkipHours: {filter.FilterSkipHoursStart} {filter.FilterSkipHoursEnd}, filtertotalScore: {filter.FilterTotalScore}", "DapperRepository:StudentRepository");
         string sql = $@"SELECT 
-        s.Id AS studentId,
-        s.SkipHours,
-        s.CountOfExamsPassed, 
-        s.CreditScores,
-        IIF(s.CountOfExamsPassed = 0, 0, CAST(s.CreditScores AS DECIMAL(18, 1)) / s.CountOfExamsPassed) AS TotalScore,
-        s.CourseId as Course,
-        im.LevelId AS MilitaryIdAvailability,
-        p.ID AS PassportID,
-        p.Serial,
-        p.Number,
-        CONCAT_WS(' ',p.FirstName, p.LastName, p.MiddleName) AS Fio,
-        p.BirthData as Dob,
-        a.ID AS AddressID,
-        a.AddressString as Address,
-        a.Country,
-        a.City,
-        a.Street as State,
-        a.HouseNumber as HouseNumber
-    FROM Student s
-    INNER JOIN Passport p ON s.PassportId = p.ID
-    INNER JOIN Address a ON p.AddressId = a.ID
-    INNER JOIN DegreesStudy ds ON s.CourseId = ds.ID
-    INNER JOIN IdMilitary im ON s.MilitaryId = im.ID
+        PersonId AS studentId,
+        SkipHours,
+        CountOfExamsPassed, 
+        CreditScores,
+        IIF(CountOfExamsPassed = 0, 0, CAST(CreditScores AS DECIMAL(18, 1)) / CountOfExamsPassed) AS TotalScore,
+        CourseId as Course,
+        LevelId AS MilitaryIdAvailability,
+        PassportID,
+        Serial,
+        Number,
+        CONCAT_WS(' ',FirstName, LastName, MiddleName) AS Fio,
+        BirthData as Dob,
+        AddressID,
+        AddressString as Address,
+        Country,
+        City,
+        Street as State,
+        HouseNumber as HouseNumber
+    FROM view_student
     /**where**/
     ORDER BY {SortColumn} {SortOrder}
     OFFSET @FirstId ROWS FETCH NEXT @countOfRow ROWS ONLY";
@@ -218,26 +185,22 @@ public class StudentRepository(IGetConnectionString getConnectionString, MyLogge
             FilterBirthDayEnd = filter.FilterDate[1]
         });
         sql = $@"SELECT COUNT(*)
-    FROM Student s
-    INNER JOIN Passport p ON s.PassportId = p.ID
-    INNER JOIN Address a ON p.AddressId = a.ID
-    INNER JOIN DegreesStudy ds ON s.CourseId = ds.ID
-    INNER JOIN IdMilitary im ON s.MilitaryId = im.ID
+    FROM view_student
     /**where**/";
         if (filter.FilterCourse is not null)
         {
             long numberOfCourse = (long)filter.FilterCourse;
-            builder.Where($"s.CourseId = {numberOfCourse}");
+            builder.Where($"CourseId = {numberOfCourse}");
         }
 
         if (filter.FilterDate[0] != "")
         {
-            builder.Where("p.BirthData >= @FilterBirthDayStart AND p.BirthData <= @FilterBirthDayEnd");
+            builder.Where("BirthData >= @FilterBirthDayStart AND BirthData <= @FilterBirthDayEnd");
         }
 
         if (filter.FilterSkipHoursEnd is not null && filter.FilterSkipHoursStart is not null)
         {
-            builder.Where("s.SkipHours >= @FilterSkipHoursStart and  s.SkipHours <= @FilterSkipHoursEnd");
+            builder.Where("SkipHours >= @FilterSkipHoursStart and SkipHours <= @FilterSkipHoursEnd");
         }
 
         if (filter.FilterTotalScore is not null)
@@ -267,7 +230,7 @@ public class StudentRepository(IGetConnectionString getConnectionString, MyLogge
     {
         await using var db = new SqlConnection(_connectionString);
         await db.OpenAsync();
-        var sqlQuery = SQlQuerySelect + " WHERE s.ChatId = @chatId";
+        var sqlQuery = SQlQuerySelect + " WHERE ChatId = @chatId";
         var student = await db.QueryAsync<Student, Passport, Address, MillitaryClass, Student>(sqlQuery,
                 (student, passport, address, millitary) =>
                 {

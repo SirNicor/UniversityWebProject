@@ -1,6 +1,31 @@
 ﻿<template>
+  <el-dialog v-model="inputFile" width="500" :before-close="close"
+    >
+    <span>Потоковое добавление студентов с помощью excel-файла</span>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-upload
+            ref="uploadRef"
+            class="upload-demo"
+            action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+            :auto-upload="false"
+        >
+          <template #trigger>
+            <el-button type="primary">Выбрать файл</el-button>
+          </template>
+          <template #tip>
+            <el-button>Скачать файл формата: </el-button>
+          </template>
+        </el-upload>
+        <el-button @click="cancel">Нет</el-button>
+        <el-button type="primary" @click="confirm">Да</el-button>
+      </div>
+    </template>
+    
+  </el-dialog>
   <div>
-    <el-button @click = "Create" type = "text" v-if="props.createVisibility">Добавить</el-button>
+    <el-button @click = "Create" type = "button" v-if="props.createVisibility" class = "add">Добавить</el-button>
+    <el-button @click = "inputFile=true" type = "button" v-if = "props.createVisibility" class = "addFromInputFile add">Загрузить файлом(excel)</el-button>
   </div>
   <el-table-v2
       :columns="CreateColumns"
@@ -32,6 +57,12 @@
     justify-content: center;
     flex-wrap: wrap;
   }
+  .add{
+    margin-left: 8px;
+  }
+  #footer{
+    
+  }
 </style>  
 <script lang="ts" setup>
 import type {SortType, TableColumn, TableData} from '@/types/TableTypes.ts';
@@ -41,7 +72,7 @@ import {useRoute} from 'vue-router';
 import type {SortBy} from 'element-plus'
 import {SortOrder} from "element-plus/es/components/table-v2/src/constants";
 import type { RowEventHandlers  } from 'element-plus'
-
+  const inputFile = ref<boolean>(false);
   const viewportWidth = window.innerWidth;
   const viewportHeight = window.innerHeight;
   const route = useRoute();
@@ -132,5 +163,25 @@ const sortState = ref<SortBy>({
   }
 const Create = () => {
   router.push(`${props.apiBase}/${undefined}`);
+}
+const emit = defineEmits<
+    {
+      (e: 'update:modelValue', value: boolean): void
+      (e: 'confirm'): void
+      (e: 'cancel'): void
+      (e: 'close'): void
+    }>();
+const cancel = () => {
+  inputFile.value = false
+  emit('cancel');
+};
+const close = (done : () => void) => {
+  inputFile.value = false
+  emit('close');
+  done();
+};
+const confirm = () => {
+  inputFile.value = false
+  emit("confirm");
 }
 </script>   
