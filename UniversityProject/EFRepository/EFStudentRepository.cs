@@ -19,6 +19,7 @@ public class EfStudentRepository(MyLogger logger, UniversityDbContext db) : IStu
         { "address", "Passport.Address.AddressString" }, 
         { "course", "Course" },
         { "skiphours", "SkipHours" },
+        { "creditscore", "CreditScores"}
     };
     public async Task PrintAllAsync()
     {
@@ -56,7 +57,7 @@ public class EfStudentRepository(MyLogger logger, UniversityDbContext db) : IStu
                 Millitary = s.Millitary,
                 PassportId = s.Passport.PassportId,
                 SkipHours = s.SkipHours,
-            }).ToListAsync());
+            }).AsNoTracking().ToListAsync());
         foreach (var st in students)
         {
             st.PrintDerivedClass(logger);
@@ -99,7 +100,7 @@ public class EfStudentRepository(MyLogger logger, UniversityDbContext db) : IStu
                 Millitary = s.Millitary,
                 PassportId = s.Passport.PassportId,
                 SkipHours = s.SkipHours,
-            }).ToListAsync());
+            }).AsNoTracking().ToListAsync());
         return students;
     }
 
@@ -186,7 +187,7 @@ public class EfStudentRepository(MyLogger logger, UniversityDbContext db) : IStu
                 Millitary = s.Millitary,
                 PassportId = s.Passport.PassportId,
                 SkipHours = s.SkipHours,
-            }).FirstOrDefaultAsync());
+            }).AsNoTracking().FirstOrDefaultAsync());
         return student;
     }
 
@@ -216,7 +217,7 @@ public class EfStudentRepository(MyLogger logger, UniversityDbContext db) : IStu
                 serial = Convert.ToString(s.Passport.Serial),
                 number = Convert.ToString(s.Passport.Number),
                 placeReceipt = s.Passport.PlaceReceipt
-            }).Where(s => s.studentId == studentId).FirstOrDefaultAsync(token);
+            }).AsNoTracking().Where(s => s.studentId == studentId).FirstOrDefaultAsync(token);
         return studentPage;
     }
 
@@ -233,14 +234,12 @@ public class EfStudentRepository(MyLogger logger, UniversityDbContext db) : IStu
             long numberOfCourse = (long)filter.FilterCourse;
             queryable = queryable.Where(student => student.Course == filter.FilterCourse);
         }
-
         if (filter.FilterDate[0] != "")
         {
             var filterDateStart = DateOnly.FromDateTime(Convert.ToDateTime(filter.FilterDate[0]));
             var filterDateEnd = DateOnly.FromDateTime(Convert.ToDateTime(filter.FilterDate[1]));
             queryable = queryable.Where(student => student.Passport.BirthData >= filterDateStart && student.Passport.BirthData <= filterDateEnd);    
         }
-
         if (filter.FilterSkipHoursEnd is not null && filter.FilterSkipHoursStart is not null)
         {
             queryable = queryable.Where(student => student.SkipHours >= filter.FilterSkipHoursStart && student.SkipHours <= filter.FilterSkipHoursEnd);
@@ -249,7 +248,7 @@ public class EfStudentRepository(MyLogger logger, UniversityDbContext db) : IStu
         {
             
         }
-        var countAsync = await queryable.CountAsync(token);
+        var countAsync = await queryable.AsSplitQuery().CountAsync(token);
         if (sortColumn.ToLower() == "fio")
         {
             queryable = sortOrder=="ASC"?
@@ -281,7 +280,7 @@ public class EfStudentRepository(MyLogger logger, UniversityDbContext db) : IStu
             CreditScore = s.CreditScores??0,
             Course =  (int)s.Course,
             CountOfExamsPassed =  s.CountOfExamsPassed??0
-        }).ToListAsync(token));
+        }).AsSplitQuery().ToListAsync(token));
         return (st, countAsync);
     }
 
