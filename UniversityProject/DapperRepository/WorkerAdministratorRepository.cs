@@ -1,4 +1,4 @@
-namespace Repository;
+﻿namespace Repository;
 using UCore;
 using Logger;
 using Dapper;
@@ -74,8 +74,9 @@ public class WorkerAdministratorRepository(IGetConnectionString getConnectionStr
         {
             var sqlQuery = @"
                 INSERT INTO Address(Country, City, Street, HouseNumber)
-                VALUES(@Country, @City, @Street, @HouseNumber)";
-            db.Execute(sqlQuery, address, transaction);
+                VALUES(@Country, @City, @Street, @HouseNumber)
+                SELECT SCOPE_IDENTITY()";
+            passport.AddressId = db.Query<long>(sqlQuery, address, transaction).First();
             sqlQuery = @"
                 INSERT INTO Passport(Serial, Number, FirstName, LastName, MiddleName, BirthData, AddressId, PlaceReceipt)
                        VALUES(@Serial,
@@ -84,20 +85,21 @@ public class WorkerAdministratorRepository(IGetConnectionString getConnectionStr
                            @LastName, 
                            @MiddleName, 
                            @BirthData, 
-                           (SELECT MAX(ID) FROM ADDRESS), 
-                           @PlaceReceipt)";
-            db.Execute(sqlQuery, passport, transaction);
+                           @AddressId, 
+                           @PlaceReceipt)
+                  SELECT SCOPE_IDENTITY()"; 
+            worker.PassportId = db.Query<long>(sqlQuery, passport, transaction).First();
             sqlQuery = $@"
                 INSERT INTO Administrator(Salary, CriminalRecord, PassportId, MilitaryId, Post)
                     VALUES(@Salary,
                         @CriminalRecord,
-                        (SELECT MAX(ID) FROM PASSPORT),
+                        @PassportId,
                         @MillitaryId,
-                        @Post)";
-            db.Execute(sqlQuery, worker, transaction);
+                        @Post)
+                 SELECT SCOPE_IDENTITY()";
+            worker.AdministratorId = db.Query<long>(sqlQuery, worker, transaction).First();
             transaction.Commit();
-            var id = db.QueryFirstOrDefault<int>("SELECT MAX(ID) FROM Administrator");
-            return id;
+            return worker.AdministratorId;
         }
         catch(Exception ex)
         {

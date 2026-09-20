@@ -1,4 +1,4 @@
-namespace Repository;
+﻿namespace Repository;
 using UCore;
 using Logger;
 using Dapper;
@@ -59,8 +59,9 @@ FROM view_teacher";
         {
             var sqlQuery = @"
                 INSERT INTO Address(Country, City, Street, HouseNumber)
-                VALUES(@Country, @City, @Street, @HouseNumber)";
-            db.Execute(sqlQuery, address, transaction);
+                VALUES(@Country, @City, @Street, @HouseNumber)
+                SELECT SCOPE_IDENTITY()";
+            passport.AddressId = db.Query<long>(sqlQuery, address, transaction).First();
             sqlQuery = @"
                 INSERT INTO Passport(Serial, Number, FirstName, LastName, MiddleName, BirthData, AddressId, PlaceReceipt)
                        VALUES(@Serial,
@@ -69,20 +70,20 @@ FROM view_teacher";
                            @LastName, 
                            @MiddleName, 
                            @BirthData, 
-                           (SELECT MAX(ID) FROM ADDRESS), 
-                           @PlaceReceipt)";
-            db.Execute(sqlQuery, passport, transaction);
+                           @AddressId, 
+                           @PlaceReceipt)
+                SELECT SCOPE_IDENTITY()";
+            teacher.PassportId = db.Query<long>(sqlQuery, passport, transaction).First();
             sqlQuery = @"
                 INSERT INTO Teacher(Salary, CriminalRecord, PassportId, MilitaryId)
                     VALUES(@Salary,
                         @CriminalRecord,
-                        (SELECT MAX(ID) FROM PASSPORT),
+                        @PassportId,
                         @MillitaryId)
-                        ";
-            db.Execute(sqlQuery, teacher, transaction);
+                 SELECT SCOPE_IDENTITY()";
+            teacher.TeacherId = db.Query<long>(sqlQuery, teacher, transaction).First();
             transaction.Commit();
-            var id = db.QueryFirstOrDefault<int>("SELECT MAX(ID) FROM Teacher");
-            return id;
+            return teacher.TeacherId;
         }
         catch(Exception ex)
         {
