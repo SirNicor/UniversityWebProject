@@ -8,20 +8,12 @@ using IRepositoryAll;
 
 public class UniversityRepository(IGetConnectionString getConnectionString, MyLogger logger) : IUniversityRepository
 {
-    private const string SqlSelectUniversityQuery = @"SELECT un.ID as universityId, un.NameUniversity, un.Budget, ad.Id as PersonId, ad.Salary, ad.CriminalRecord,
-ad.MilitaryID, ad.PassportID, p.Serial, p.Number, p.FirstName, p.LastName,
-p.MiddleName, p.BirthData, p.AddressId, a.Country, a.City, a.Street, a.HouseNumber FROM University un
-JOIN Administrator ad ON ad.Id = un.Rector
-INNER JOIN Passport p ON ad.PassportId = p.ID
-INNER JOIN Address a ON p.AddressId = a.ID
-INNER JOIN IdMilitary im ON ad.MilitaryId = im.ID ";
-    private const string SqlSelectPersonalOfAdministratorQuery = @"SELECT PU.IdUniversity, ad.Id as PersonId, ad.Salary, ad.CriminalRecord,
-ad.MilitaryID, ad.PassportID, p.Serial, p.Number, p.FirstName, p.LastName,
-p.MiddleName, p.BirthData, p.AddressId, a.Country, a.City, a.Street, a.HouseNumber FROM PersonalOfUniversity PU
-JOIN Administrator ad ON ad.Id = PU.IdAdministrator
-INNER JOIN Passport p ON ad.PassportId = p.ID
-INNER JOIN Address a ON p.AddressId = a.ID
-INNER JOIN IdMilitary im ON ad.MilitaryId = im.ID";
+    private const string SqlSelectUniversityQuery = @"SELECT universityId, NameUniversity, Budget
+    FROM view_university";
+    private const string SqlSelectPersonalOfAdministratorQuery = @"SELECT UniversityId, PersonId, Salary, CriminalRecord,
+                MilitaryID, PassportID, Serial, Number, FirstName, LastName,
+                MiddleName, BirthData, AddressId, Country, City, Street, HouseNumber
+    FROM view_personalOfUniversity";
     private readonly string _connectionString = getConnectionString.ReturnConnectionString();
 
     // private const string SqlSelectIdUniversityQuery = @"Select 
@@ -32,15 +24,15 @@ INNER JOIN IdMilitary im ON ad.MilitaryId = im.ID";
     {
         using IDbConnection db = new SqlConnection(_connectionString);
         List<Administrator> administrators = db.Query<Administrator, Passport, Address, Administrator>(
-            SqlSelectPersonalOfAdministratorQuery + @"WHERE IdUniversity = @ID", 
+            SqlSelectPersonalOfAdministratorQuery + @"WHERE UniversityId = @ID", 
             (administrator, passport, address) =>
             {
                 passport.Address = address;
                 administrator.Passport = passport;
                 return administrator;
             },
-            new { ID = id }, splitOn: "PassportId, AddressId").ToList();
-        University university = db.Query<University>(SqlSelectUniversityQuery + @"WHERE un.ID = @ID", new { ID = id }).First();
+            new { ID = id }).ToList();
+        University university = db.Query<University>(SqlSelectUniversityQuery + @"WHERE universityId = @ID", new { ID = id }).First();
         university.Administrators = administrators;
         return university;
     }
@@ -50,7 +42,6 @@ INNER JOIN IdMilitary im ON ad.MilitaryId = im.ID";
         string sqlQuery = "SELECT ID FROM UNIVERSITY WHERE NameUniversity = @nameUniversity";
         using IDbConnection db = new SqlConnection(_connectionString);
         var check = db.Query<long?>(sqlQuery, new {  nameUniversity }).FirstOrDefault();
-        check = check == 0 ? null : check;
         return check;
     }
 

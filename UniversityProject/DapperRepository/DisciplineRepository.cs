@@ -9,36 +9,16 @@ public class DisciplineRepository(IGetConnectionString getConnectionString, MyLo
 {
     private readonly string _sqlSelectDisciplineQuery = @"SELECT Id AS DisciplineId, NameDiscipline FROM Discipline ";
 
-    private const string SqlSelectTacherOfDisciplineQuery = @"SELECT 
-        dp.DisciplineId,
-        tc.Id AS PersonId,
-        tc.Salary,
-        tc.CriminalRecord,
-        im.LevelId AS MilitaryIdAvailability,
-        p.ID AS PassportID,
-        p.Serial,
-        p.Number,
-        p.FirstName,
-        p.LastName,
-        p.MiddleName,
-        p.BirthData,
-        a.ID AS AddressID,
-        a.Country,
-        a.City,
-        a.Street,
-        a.HouseNumber
-    FROM TeacherOfDiscipline dp
-    JOIN Teacher tc ON tc.Id = dp.TeacherId
-    INNER JOIN Passport p ON tc.PassportId = p.ID
-    INNER JOIN Address a ON p.AddressId = a.ID
-    INNER JOIN IdMilitary im ON tc.MilitaryId = im.ID ";
+    private const string SqlSelectTacherOfDisciplineQuery = @"SELECT DisciplineId, PersonId, Salary, CriminalRecord, MilitaryIdAvailability,
+    PassportID, Serial, Number, FirstName, LastName, MiddleName, BirthData, AddressID, Country, City, Street, HouseNumber
+    FROM view_discipline";
     private readonly string _connectionString = getConnectionString.ReturnConnectionString();
     
     public Discipline Get(long id)
     {
         using IDbConnection db = new SqlConnection(_connectionString);
         List<Teacher> teachers = db.Query<Teacher, Passport, Address, Teacher>(
-            SqlSelectTacherOfDisciplineQuery + @"WHERE dp.DisciplineId = @ID", 
+            SqlSelectTacherOfDisciplineQuery + @"WHERE DisciplineId = @ID", 
             (teacher, passport, address) =>
             {
                 passport.Address = address;
@@ -51,7 +31,7 @@ public class DisciplineRepository(IGetConnectionString getConnectionString, MyLo
         return discipline;
     }
 
-    public List<Discipline> ReturnList()
+    public List<Discipline> ReturnList() 
     {
         using IDbConnection db = new SqlConnection(_connectionString);
         List<TeacherOfDisciplineDto> teachers = db.Query<TeacherOfDisciplineDto, Teacher, Passport, Address, TeacherOfDisciplineDto>(

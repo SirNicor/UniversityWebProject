@@ -1,4 +1,4 @@
-﻿namespace Repository;
+namespace Repository;
 using UCore;
 using Logger;
 using Dapper;
@@ -9,28 +9,9 @@ public class WorkerTeacherRepository(IGetConnectionString getConnectionString, M
     : IWorkerTeacherRepository
 {
     private readonly string _sqlQuerySelect = @"
-SELECT 
-        tc.Id AS PersonId,
-        tc.Salary,
-        tc.CriminalRecord,
-        im.Id AS MillitaryId,
-        im.LevelId AS LevelId,
-        p.ID AS PassportID,
-        p.Serial,
-        p.Number,
-        p.FirstName,
-        p.LastName,
-        p.MiddleName,
-        p.BirthData,
-        a.ID AS AddressID,
-        a.Country,
-        a.City,
-        a.Street,
-        a.HouseNumber
-    FROM Teacher tc
-    INNER JOIN Passport p ON tc.PassportId = p.ID
-    INNER JOIN Address a ON p.AddressId = a.ID
-    INNER JOIN IdMilitary im ON tc.MilitaryId = im.ID";
+SELECT PersonId, Salary, CriminalRecord, MillitaryId, LevelId, PassportID, Serial, Number, FirstName, LastName, MiddleName,
+BirthData, AddressID, Country, City, Street, HouseNumber
+FROM view_teacher";
 
     private readonly string _connectionString = getConnectionString.ReturnConnectionString();
 
@@ -38,7 +19,7 @@ SELECT
     {
         using IDbConnection db = new SqlConnection(_connectionString);
         var teacher = db.Query<Teacher,  MillitaryClass, Passport, Address, Teacher>(
-            _sqlQuerySelect + " WHERE tc.ID = @ID",
+            _sqlQuerySelect + " WHERE PersonId = @ID",
             (teacher, millitary, passport, address) =>
             {
                 teacher.Millitary = millitary;

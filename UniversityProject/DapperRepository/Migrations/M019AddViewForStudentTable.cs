@@ -1,9 +1,8 @@
 ﻿using FluentMigrator;
-using FluentMigrator.Expressions;
 
 namespace Repository.Migrations;
 
-[Migration(19, "Add view for all table")]
+[Migration(19, "Add view for student table")]
 public class M019AddViewForStudentTable : Migration
 {
     public override void Up()
@@ -43,6 +42,6 @@ public class M019AddViewForStudentTable : Migration
     
     public override void Down()
     {
-        Execute.Sql("DROP VIEW view_student");
+        Execute.Sql("DROP VIEW IF EXISTS view_student");
     }
 }

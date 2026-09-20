@@ -3,31 +3,29 @@ using Logger;
 using Dapper;
 using System.Data;
 using System.Data.SqlClient;
+using UCore.DTO;
+
 namespace Repository;
 using IRepositoryAll;
-public class ScheduleRepository(IGetConnectionString getConnectionString, MyLogger logger) : IScheduleRepository
+public class ScheduleRepository(IGetConnectionString getConnectionString, MyLogger logger, 
+    IDirectionRepository directionRepository, IWorkerTeacherRepository workerTeacherRepository, IDisciplineRepository disciplineRepository) : IScheduleRepository
 {
     private readonly string _connectionString = getConnectionString.ReturnConnectionString();
-    const string SqlQuery = @"SELECT sc.Id, sc.DataWeekForScheduleId, dw.DaysOfWeek AS DataWeek, 
-       sc.DataСoupleForScheduleId, dc.StartCouple, dc.EndCouple, sc.DirectionId, dr.DegreesStudyId as NumberOfCourse, dr.NameDirection, 
-       dr.ChatId, dp.Id as DepartmentId, dp.NameDepartment, fc.ID AS FacultyId, 
-       fc.NameFaculty, fc.IdUniversity AS UniversityId, un.Budget, un.NameUniversity ,
-       sc.DisciplineId, ds.NameDiscipline, sc.TeacherId,tc.Id AS PersonId, tc.Salary,
-       tc.CriminalRecord, im.LevelId AS MilitaryIdAvailability, p.ID AS PassportID,
-       p.Serial,p.Number, p.FirstName, p.LastName, p.MiddleName, p.BirthData,
-       a.ID AS AddressID, a.Country, a.City, a.Street, a.HouseNumber
-    FROM Schedule sc
-    JOIN Direction dr ON dr.Id = sc.DirectionId
-    JOIN Department dp ON dp.Id = dr.DepartmentId
-    JOIN Faculty fc ON fc.Id = dp.FacultyId
-    JOIN University un ON un.Id = fc.IdUniversity
-    JOIN Discipline ds ON ds.Id = sc.DisciplineId
-    JOIN Teacher tc ON tc.id = sc.TeacherId
-    JOIN Passport p ON tc.PassportId = p.ID
-    JOIN Address a ON p.AddressId = a.ID
-    JOIN IdMilitary im ON tc.MilitaryId = im.ID
-    JOIN DataWeekForSchedule dw ON dw.Id = sc.DataWeekForScheduleId
-    JOIN DataСoupleForSchedule dc ON dc.Id = sc.DataСoupleForScheduleId";
+
+    private const string QueryScheduleGet =
+        @"Select sc.Id, dw.DataWeek, dc.StartCouple, dc.EndCouple, sc.DirectionId, sc.DisciplineId, sc.TeacherId
+        FROM Schedule sc
+        JOIN DataWeekForSchedule dw ON sc.DataWeekForScheduleId = dw.Id
+        JOIN DataСoupleForSchedule dc ON dc.Id = sc.DataСoupleForScheduleId";
+    const string SqlQuery = @"SELECT Id, DataWeekForScheduleId, DataWeek, 
+       DataСoupleForScheduleId, StartCouple, EndCouple, DirectionId, NumberOfCourse, NameDirection, 
+       ChatId, DepartmentId, NameDepartment, FacultyId, 
+       NameFaculty, UniversityId, Budget, NameUniversity,
+       DisciplineId, NameDiscipline, PersonId, Salary,
+       CriminalRecord, MilitaryIdAvailability, PassportID,
+       Serial, Number, FirstName, LastName, MiddleName, BirthData,
+       AddressID, Country, City, Street, HouseNumber
+FROM view_fullInfoAboutSchedule";
 
     public long Create(ScheduleDto schedule)
     {
@@ -63,25 +61,17 @@ public class ScheduleRepository(IGetConnectionString getConnectionString, MyLogg
     {
         using IDbConnection db = new SqlConnection(_connectionString);
         db.Open();
-        Schedule schedule  = db.Query<Schedule, Direction, Department, Faculty, University, Schedule>(
-            SqlQuery + " Where sc.Id = @Id", (schedule, direction, department, faculty, universtity) => 
-            {
-                faculty.University = universtity;
-                department.Faculty = faculty;
-                direction.Department = department;
-                schedule.Direction = direction;
-                return schedule;
-            }, new { Id = id }, splitOn: "Id, DirectionId,DepartmentId,FacultyId,UniversityId").First();
-        Discipline discipline = db.Query<Discipline>(SqlQuery + " Where sc.Id = @Id", new { Id = id }).First();
-        Teacher teacher = db.Query<Teacher, Passport, Address, Teacher>(
-            SqlQuery + " WHERE sc.ID = @ID",
-            (teacher, passport, address) =>
-            {
-                passport.Address = address;
-                teacher.Passport = passport;
-                return teacher;
-            }, new { ID = id },
-            splitOn: "PassportId, AddressId").First();
+        ScheduleDtoForRead scheduleDtoForRead = db.Query<ScheduleDtoForRead>(QueryScheduleGet + "WHERE Id = @Id", new { Id = id }).First();
+        Direction direction = directionRepository.Get(scheduleDtoForRead.DirectionId);
+        Teacher teacher = workerTeacherRepository.Get(scheduleDtoForRead.TeacherId);
+        Discipline discipline = disciplineRepository.Get(scheduleDtoForRead.DisciplineId);
+        Schedule schedule = new Schedule()
+        {
+            Id =  scheduleDtoForRead.Id,
+            DataWeek = scheduleDtoForRead.DataWeek,
+            StartCouple = scheduleDtoForRead.StartCouple,
+            EndCouple = scheduleDtoForRead.EndCouple
+        };
         schedule.Discipline = discipline;
         schedule.Teacher = teacher;
         return schedule;
@@ -167,7 +157,7 @@ public class ScheduleRepository(IGetConnectionString getConnectionString, MyLogg
     UPDATE Schedule SET DirectionId = @DirectionId, DisciplineId = @DisciplineId, TeacherId = @TeacherId,
                         DataWeekForScheduleId = (SELECT ID FROM DataWeekForSchedule WHERE DaysOfWeek = @DataWeek),
                         DataСoupleForScheduleId = (SELECT ID FROM DataСoupleForSchedule WHERE StartCouple = @StartCouple AND EndCouple = @EndCouple)
-                        WHERE ID = @iId";
+                        WHERE ID = @Id";
             db.Execute(sqlQuery, new
             {
                 schedule.DirectionId, schedule.DisciplineId, schedule.TeacherId,

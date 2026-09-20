@@ -11,23 +11,16 @@ public class DirectionRepository(IGetConnectionString getConnectionString, MyLog
     private readonly MyLogger _logger = logger;
 
     private const string SqlSelectDirectionQuery =
-        @"SELECT dr.Id AS DirectionId, dr.DegreesStudyId as NumberOfCourse, dr.NameDirection, 
-       dr.ChatId, dp.Id as DepartmentId, dp.NameDepartment, fc.ID AS FacultyId, 
-       fc.NameFaculty, fc.IdUniversity AS UniversityId, un.Budget, un.NameUniversity FROM Direction dr
-JOIN Department dp ON dp.Id = dr.DepartmentId
-JOIN Faculty fc ON fc.Id = dp.FacultyId
-JOIN University un ON un.Id = fc.IdUniversity ";
+        @"SELECT  DirectionId,  NumberOfCourse, NameDirection, 
+                ChatId, DepartmentId, NameDepartment, FacultyId, 
+                NameFaculty, UniversityId, Budget, NameUniversity
+        FROM view_direction";
     private const string SqlSelectStudentOfDirectionQuery =
-        @"SELECT SoD.DirectionId, s.Id AS PersonId,s.SkipHours,s.CountOfExamsPassed, 
-s.CreditScores,ds.LevelDegrees,im.LevelId AS MilitaryIdAvailability,p.ID AS PassportID,
-p.Serial,p.Number,p.FirstName,p.LastName,p.MiddleName,p.BirthData,
-a.ID AS AddressID, a.Country,a.City,a.Street,a.HouseNumber 
-FROM StudentOfDirection SoD
-INNER JOIN Student s ON s.Id = SoD.StudentId
-INNER JOIN Passport p ON s.PassportId = p.ID
-INNER JOIN Address a ON p.AddressId = a.ID
-INNER JOIN DegreesStudy ds ON s.CourseId = ds.ID
-INNER JOIN IdMilitary im ON s.MilitaryId = im.ID ";
+        @"SELECT DirectionId, PersonId, SkipHours,CountOfExamsPassed, 
+                CreditScores, LevelDegrees,MilitaryIdAvailability, PassportID,
+                Serial,Number,FirstName,LastName,MiddleName,BirthData,
+                AddressID, Country,City,Street, HouseNumber 
+        FROM view_studentOfDirectionQuery";
 
     private const string SqlSelectDisciplineOfDirectionQuery =
         @"SELECT DoD.DirectionId, DoD.DisciplineId, ds.NameDiscipline 
@@ -64,7 +57,7 @@ JOIN Discipline ds ON ds.Id = DoD.DisciplineId";
     public Direction Get(long id)
     {
         using IDbConnection db = new SqlConnection(_connectionString);
-        List<Student> students = db.Query<Student, Passport, Address, Student>(SqlSelectStudentOfDirectionQuery + "WHERE SoD.DirectionId = @Id",
+        List<Student> students = db.Query<Student, Passport, Address, Student>(SqlSelectStudentOfDirectionQuery + "WHERE DirectionId = @Id",
             (student, passport, address) =>
             {
                 passport.Address = address;
@@ -73,7 +66,7 @@ JOIN Discipline ds ON ds.Id = DoD.DisciplineId";
             },
             new { Id = id }, splitOn: "PersonId,PassportID,AddressID").ToList();
         List<Discipline> disciplines = db.Query<Discipline>(SqlSelectDisciplineOfDirectionQuery + " WHERE DoD.DirectionId = @Id", new { Id = id }).ToList();
-        Direction direction = db.Query<Direction, Department, Faculty, University, Direction>(SqlSelectDirectionQuery + "WHERE dr.Id = @Id",
+        Direction direction = db.Query<Direction, Department, Faculty, University, Direction>(SqlSelectDirectionQuery + "WHERE DirectionId = @Id",
             (direction, department, faculty, university) =>
             {
                 faculty.University = university;

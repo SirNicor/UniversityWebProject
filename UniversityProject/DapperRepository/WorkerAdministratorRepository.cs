@@ -1,4 +1,4 @@
-﻿namespace Repository;
+namespace Repository;
 using UCore;
 using Logger;
 using Dapper;
@@ -10,28 +10,9 @@ public class WorkerAdministratorRepository(IGetConnectionString getConnectionStr
 {
     readonly string _connectionString = getConnectionString.ReturnConnectionString();
     private const string SqlQuerySelect = @"
-    SELECT 
-        ad.Id AS PersonId,
-        ad.Salary,
-        ad.CriminalRecord,
-        im.Id AS MillitaryId,
-        im.LevelId AS LevelId,
-        p.ID AS PassportID,
-        p.Serial,
-        p.Number,
-        p.FirstName,
-        p.LastName,
-        p.MiddleName,
-        p.BirthData,
-        a.ID AS AddressID,
-        a.Country,
-        a.City,
-        a.Street,
-        a.HouseNumber
-    FROM Administrator ad
-    INNER JOIN Passport p ON ad.PassportId = p.ID
-    INNER JOIN Address a ON p.AddressId = a.ID
-    INNER JOIN IdMilitary im ON ad.MilitaryId = im.ID";
+    SELECT PersonId, Salary, CriminalRecord, MillitaryId, LevelId, PassportID, Serial, Number,
+    FirstName, LastName, MiddleName, BirthData, AddressID, Country, City, Street, HouseNumber
+        FROM view_administrator";
 
     public void PrintAll()
     {
@@ -69,7 +50,7 @@ public class WorkerAdministratorRepository(IGetConnectionString getConnectionStr
     {
         using IDbConnection db = new SqlConnection(_connectionString);
         var administrator = db.Query<Administrator, MillitaryClass, Passport, Address, Administrator>(
-            SqlQuerySelect + " WHERE ad.ID = @ID",
+            SqlQuerySelect + " WHERE PersonId = @ID",
             (Administrator, millitary, Passport, Address) =>
             {
                 Administrator.Millitary = millitary;

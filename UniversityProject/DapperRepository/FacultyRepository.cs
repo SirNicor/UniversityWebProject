@@ -8,17 +8,14 @@ using System.Data.SqlClient;
 using IRepositoryAll;
 public class FacultyRepository(IGetConnectionString getConnectionString, MyLogger logger) : IFacultyRepository
 {
-    private const string SqlSelectFacultyQuery = @"SELECT fc.ID AS FacultyId, fc.NameFaculty, fc.IdUniversity AS UniversityId, un.Budget, un.Budget FROM Faculty fc 
+    private const string SqlSelectFacultyQuery = @"SELECT fc.ID AS FacultyId, fc.NameFaculty, fc.IdUniversity AS UniversityId, un.Budget, FROM Faculty fc 
 JOIN University un ON un.Id = fc.IdUniversity ";
 
     private const string SqlSelectAdministratorOfFaculty =
-        @"SELECT ADO.IdFaculty AS FacultyId, ad.Id as PersonId, ad.Salary, ad.CriminalRecord,
-        ad.MilitaryID, ad.PassportID, p.Serial, p.Number, p.FirstName, p.LastName,
-        p.MiddleName, p.BirthData, p.AddressId, a.Country, a.City, a.Street, a.HouseNumber FROM AdministrationOfFaculty ADO
-        JOIN Administrator ad ON ad.Id = ADO.IdAdministrator
-        INNER JOIN Passport p ON ad.PassportId = p.ID
-        INNER JOIN Address a ON p.AddressId = a.ID
-        INNER JOIN IdMilitary im ON ad.MilitaryId = im.ID ";
+        @"SELECT FacultyId, PersonId, Salary, CriminalRecord, MilitaryID, 
+                PassportID, Serial, Number, FirstName, LastName,
+                MiddleName, BirthData, AddressId, Country, City, Street, HouseNumber
+        FROM view_faculty";
 
     private readonly string _connectionString = getConnectionString.ReturnConnectionString();
 
@@ -53,7 +50,7 @@ JOIN University un ON un.Id = fc.IdUniversity ";
     {
         using IDbConnection db = new SqlConnection(_connectionString);
         List<Administrator> administrators = db.Query<Administrator, Passport, Address, Administrator>(
-            SqlSelectAdministratorOfFaculty + @"WHERE IdFaculty = @Id",
+            SqlSelectAdministratorOfFaculty + @"WHERE FacultyId = @Id",
             (administrator, passport, address) =>
             {
                 passport.Address = address;

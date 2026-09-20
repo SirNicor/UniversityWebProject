@@ -8,18 +8,15 @@ using IRepositoryAll;
 
 public class DepartmentRepository(IGetConnectionString getConnectionString, MyLogger logger) : IDepartmentRepository
 {
-    private const string SqlSelectFacultyQuery = @"SELECT dp.Id as DepartmentId, dp.NameDepartment, fc.ID AS FacultyId, fc.NameFaculty, fc.IdUniversity AS UniversityId, un.Budget FROM Department dp
+    private const string SqlSelectFacultyQuery = @"SELECT dp.Id as DepartmentId, dp.NameDepartment, fc.ID AS FacultyId, fc.NameFaculty, fc.IdUniversity AS UniversityId, un.Budget 
+FROM Department dp
 JOIN Faculty fc ON fc.Id = dp.FacultyId
 JOIN University un ON un.Id = fc.IdUniversity ";
 
     private const string SqlSelectAdministratorOfFaculty =
-        $@"SELECT AOD.DepartmentId, ad.Id as PersonId, ad.Salary, ad.CriminalRecord,
-        ad.MilitaryID, ad.PassportID, p.Serial, p.Number, p.FirstName, p.LastName,
-        p.MiddleName, p.BirthData, p.AddressId, a.Country, a.City, a.Street, a.HouseNumber FROM AdministrationOfDepartment AOD
-        JOIN Administrator ad ON ad.Id = AOD.AdministratorId
-        INNER JOIN Passport p ON ad.PassportId = p.ID
-        INNER JOIN Address a ON p.AddressId = a.ID
-        INNER JOIN IdMilitary im ON ad.MilitaryId = im.ID ";
+        $@"SELECT DepartmentId, PersonId, Salary, CriminalRecord,
+        MilitaryID, PassportID, Serial, Number, FirstName, LastName,
+        MiddleName, BirthData, AddressId, Country, City, Street, HouseNumber FROM view_department";
 
     private readonly string _connectionString = getConnectionString.ReturnConnectionString();
 

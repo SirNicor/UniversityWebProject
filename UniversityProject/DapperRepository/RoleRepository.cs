@@ -14,21 +14,12 @@ public class RoleRepository(IGetConnectionString getConnectionString, MyLogger l
     public RoleAccessDto GetRoleAccess(int roleId)
     {
         using IDbConnection db = new SqlConnection(_connectionString);
-        const string sql = @"
-            SELECT 
-                r.Id AS Id,
-                r.Name AS NameRole,
-                tor.Name AS TypeOperation,
-                ap.Name AS AccessPage
-            FROM Role r
-            INNER JOIN RoleAccess ra ON r.Id = ra.IdRole
-            INNER JOIN TypeOperationRole tor ON ra.IdTypeOperation = tor.Id
-            INNER JOIN AccessPage ap ON ra.IdAccessPage = ap.Id
-            WHERE r.Id = @roleId";
+        const string sql = @"SELECT Id, NameRole, TypeOperation, AccessPage
+        FROM view_role";
 
         try
         {
-            var rawResults = db.Query<RoleAccessRaw>(sql, new { roleId }).ToList();
+            var rawResults = db.Query<RoleAccessRaw>(sql + "WHERE Id = @roleId", new { roleId }).ToList();
             
             if (rawResults.Count == 0)
                 return null;
@@ -59,16 +50,9 @@ public class RoleRepository(IGetConnectionString getConnectionString, MyLogger l
 
         using IDbConnection db = new SqlConnection(_connectionString);
         const string sql = @"
-            SELECT 
-                r.Id AS Id,
-                r.Name AS NameRole,
-                tor.Name AS TypeOperation,
-                ap.Name AS AccessPage
-            FROM Role r
-            INNER JOIN RoleAccess ra ON r.Id = ra.IdRole
-            INNER JOIN TypeOperationRole tor ON ra.IdTypeOperation = tor.Id
-            INNER JOIN AccessPage ap ON ra.IdAccessPage = ap.Id
-            WHERE r.Id IN @rolesId";
+            SELECT Id, NameRole, TypeOperation, AccessPage
+            FROM view_role
+            WHERE Id IN @rolesId";
 
         try
         {

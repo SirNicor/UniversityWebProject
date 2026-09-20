@@ -70,7 +70,7 @@ public class StudentRepository(IGetConnectionString getConnectionString, MyLogge
                 student.Millitary = millitaryClass;
                 return student;
             },
-            splitOn: "PassportID, AddressID"
+            splitOn: "PassportID, AddressID, MillitaryId"
         )).AsList();
         foreach (var student in students)
         {
@@ -90,7 +90,7 @@ public class StudentRepository(IGetConnectionString getConnectionString, MyLogge
                     student.Millitary = millitaryClass;
                     return student;
                 },
-                splitOn: "PassportID, AddressID"
+                splitOn: "PassportID, AddressID, MillitaryId"
                 )).AsList();
     }   
     
@@ -108,7 +108,7 @@ public class StudentRepository(IGetConnectionString getConnectionString, MyLogge
                     return student;
                 },
                 (new { id = id }),
-                splitOn: "PassportID, AddressID"
+                splitOn: "PassportID, AddressID, MillitaryId"
             );
         return students.FirstOrDefault();
     }
@@ -240,7 +240,7 @@ public class StudentRepository(IGetConnectionString getConnectionString, MyLogge
                     return student;
                 },
                 (new { chatId }),
-                splitOn: "PassportID, AddressID"
+                splitOn: "PassportID, AddressID, MillitaryId"
             );
         return student.FirstOrDefault();
     }
