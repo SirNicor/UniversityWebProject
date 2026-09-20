@@ -8,7 +8,7 @@ public interface IStudentRepository
     public Task PrintAllAsync();
     public Task<List<Student>> ReturnListAsync();
     Task<long> CreateAsync(StudentDtoForPage student, CancellationToken token);
-    Task<long?> UpdateAsync(StudentDtoForPage student, CancellationToken token);
+    Task<long?> UpdateAsync(StudentDtoForPage studentDto, CancellationToken token);
     Task DeleteAsync(long id, CancellationToken token);
     Task DeleteAddressAsync(long id);
     Task DeletePassportAsync(long id);

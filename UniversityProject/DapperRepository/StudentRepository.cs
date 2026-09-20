@@ -255,7 +255,7 @@ public class StudentRepository(IGetConnectionString getConnectionString, MyLogge
         long? check = await db.QueryFirstOrDefaultAsync<long?>(sqlQuery, new {  firstName, lastName });
         return check;
     }
-    public async Task<long?> UpdateAsync(StudentDtoForPage student, CancellationToken token)
+    public async Task<long?> UpdateAsync(StudentDtoForPage studentDto, CancellationToken token)
     {
         await using var db = new SqlConnection(_connectionString);
         await db.OpenAsync(token);
@@ -265,7 +265,7 @@ public class StudentRepository(IGetConnectionString getConnectionString, MyLogge
             string sqlQuery = @"UPDATE Address 
                 SET AddressString = @address, Country = @country,  City = @city, Street = @state, HouseNumber = @houseNumber
                 WHERE Id = @addressId";
-            await db.ExecuteAsync(sqlQuery, student, transaction);
+            await db.ExecuteAsync(sqlQuery, studentDto, transaction);
             sqlQuery = @"
                     UPDATE PASSPORT 
                     SET Serial = @serial, 
@@ -276,7 +276,7 @@ public class StudentRepository(IGetConnectionString getConnectionString, MyLogge
                         BirthData = @dob, 
                         PlaceReceipt = @placeReceipt
                     WHERE Id = @passportId";
-            await db.ExecuteAsync(sqlQuery, student, transaction);
+            await db.ExecuteAsync(sqlQuery, studentDto, transaction);
             sqlQuery = @"
                     UPDATE STUDENT 
                     SET
@@ -286,9 +286,9 @@ public class StudentRepository(IGetConnectionString getConnectionString, MyLogge
                         CountOfExamsPassed = @countOfExamsPassed, 
                         CreditScores = @creditScores
                     WHERE ID = @studentId";
-            await db.ExecuteAsync(sqlQuery, student, transaction);
+            await db.ExecuteAsync(sqlQuery, studentDto, transaction);
             await transaction.CommitAsync(token);
-            return student.studentId;
+            return studentDto.studentId;
         }
         catch (Exception ex)
         {

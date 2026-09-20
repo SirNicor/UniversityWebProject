@@ -16,7 +16,7 @@
         public abstract void PrintDerivedClass(MyLogger myLogger);
         public long Id { get; set; }
         public long PassportId { get; set; }
-        public int MillitaryId { get; set; }
+        public long MillitaryId { get; set; }
         public MillitaryClass Millitary { get; set; }
         public Passport Passport { get; set; }
         public bool CriminalRecord { get; set; }

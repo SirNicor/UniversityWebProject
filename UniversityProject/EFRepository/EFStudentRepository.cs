@@ -119,14 +119,32 @@ public class EfStudentRepository(MyLogger logger, UniversityDbContext db) : IStu
         return (long)studentRow.StudentId;
     }
 
-    public async Task<long?> UpdateAsync(StudentDtoForPage student, CancellationToken token)
+    public async Task<long?> UpdateAsync(StudentDtoForPage studentDto, CancellationToken token)
     {
+        var student = await db.Students.Include(s => s.Passport)
+            .ThenInclude(p => p.Address).FirstOrDefaultAsync(u => u.StudentId == (long)studentDto.studentId, token);
+        if (student == null)
+        {
+            return null;
+        }
+        var originalStudentId = student.StudentId;
+        var originalPassportId = student.PassportId; 
+        var originalAddressId = student.Passport?.AddressId;
         await using var transaction = await db.Database.BeginTransactionAsync(token);
-        var insertDate = ConvertEF.ConvertStudentToInsert(student);
+        var insertDate = ConvertEF.ConvertStudentToInsert(studentDto);
         var studentRow = insertDate.Student;
+        studentRow.StudentId = originalStudentId;
         studentRow.Passport = insertDate.Passport;
+        studentRow.Passport.PassportId = originalPassportId;
+        studentRow.PassportId = originalPassportId;
         studentRow.Passport.Address = insertDate.Address;
-        db.Students.Update(studentRow);
+        studentRow.Passport.Address.AddressId = (long)originalAddressId;
+        studentRow.Passport.AddressId = originalAddressId;
+        studentRow.Millitary = null;
+        studentRow.MillitaryId = 1; //temporarily
+        db.Entry(student).CurrentValues.SetValues(studentRow);
+        db.Entry(student.Passport).CurrentValues.SetValues(studentRow.Passport);
+        db.Entry(student.Passport.Address).CurrentValues.SetValues(studentRow.Passport.Address);
         await db.SaveChangesAsync(token);
         await transaction.CommitAsync(token);
         return studentRow.StudentId;
