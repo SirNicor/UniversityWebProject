@@ -11,7 +11,7 @@ static class TeacherRequest
         app.MapGet("/Teacher/{id}", async (int id, HttpContext context) =>
         {
             var service = context.RequestServices.GetService<IWorkerTeacherRepository>();   
-            var teacher = service.Get(id);
+            var teacher = service.GetForId(id);
             await context.Response.WriteAsJsonAsync(teacher); 
         });
         app.MapGet("/Teacher", async context =>

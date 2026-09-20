@@ -10,7 +10,7 @@ static class DirectionRequest
         app.MapGet("/Direction/{id}", async (int id, HttpContext context) =>
         {
             var service = context.RequestServices.GetService<IDirectionRepository>();   
-            var department = service.Get(id);
+            var department = service.GetForId(id);
             await context.Response.WriteAsJsonAsync(department); 
         });
         app.MapGet("/Direction", async context =>

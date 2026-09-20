@@ -62,9 +62,9 @@ FROM view_fullInfoAboutSchedule";
         using IDbConnection db = new SqlConnection(_connectionString);
         db.Open();
         ScheduleDtoForRead scheduleDtoForRead = db.Query<ScheduleDtoForRead>(QueryScheduleGet + "WHERE Id = @Id", new { Id = id }).First();
-        Direction direction = directionRepository.Get(scheduleDtoForRead.DirectionId);
-        Teacher teacher = workerTeacherRepository.Get(scheduleDtoForRead.TeacherId);
-        Discipline discipline = disciplineRepository.Get(scheduleDtoForRead.DisciplineId);
+        Direction direction = directionRepository.GetForId(scheduleDtoForRead.DirectionId);
+        Teacher teacher = workerTeacherRepository.GetForId(scheduleDtoForRead.TeacherId);
+        Discipline discipline = disciplineRepository.GetForId(scheduleDtoForRead.DisciplineId);
         Schedule schedule = new Schedule()
         {
             Id =  scheduleDtoForRead.Id,
@@ -81,31 +81,31 @@ FROM view_fullInfoAboutSchedule";
     {
         using IDbConnection db = new SqlConnection(_connectionString);
         db.Open();
-        List<Schedule> schedules = db.Query<Schedule, Direction, Department, Faculty, University, Discipline, Schedule>(
-            SqlQuery, (schedule, direction, department, faculty, universtity, discipline) =>
-            {
-                faculty.University = universtity;
-                department.Faculty = faculty;
-                direction.Department = department;
-                schedule.Direction = direction;
-                schedule.Discipline = discipline;
-                return schedule;
-            }, splitOn: "DirectionId,DepartmentId,FacultyId,UniversityId, DisciplineId").AsList();
-        List<TeacherOfScheduleDTO> teachers = db.Query<TeacherOfScheduleDTO, Teacher, Passport, Address, TeacherOfScheduleDTO>(
-            SqlQuery,
-            (teacherDto, teacher, passport, address) =>
-            {
-                passport.Address = address;
-                teacher.Passport = passport;
-                teacherDto.Teacher = teacher;
-                return teacherDto;
-            }, splitOn: "TeacherId, PassportId, AddressId").ToList();
-        var teachersDir = teachers.GroupBy(x => x.Id)
-            .ToDictionary(x => x.Key, x => x.Select(teachers => teachers.Teacher).First());
-        foreach (var schedule in schedules)
+        var scheduleDtoForRead = db.Query<ScheduleDtoForRead>(QueryScheduleGet).ToList();
+        long length = scheduleDtoForRead.Count;
+        
+        var directionIds = scheduleDtoForRead.Select(s => s.DirectionId).Distinct().ToList();
+        var disciplineIds = scheduleDtoForRead.Select(s => s.DisciplineId).Distinct().ToList();
+        var teacherIds = scheduleDtoForRead.Select(s => s.TeacherId).Distinct().ToList();
+        
+        var direction = directionRepository.GetForIds(directionIds.ToList());
+        var teacher = workerTeacherRepository.GetForIds(teacherIds.ToList());
+        var discipline = disciplineRepository.GetForIds(disciplineIds.ToList());
+        
+        var dirDict = direction.ToDictionary(d => d.DirectionId);
+        var discDict = discipline.ToDictionary(d => d.DisciplineId);
+        var teachDict = teacher.ToDictionary(t => t.TeacherId);
+        
+        var schedules = scheduleDtoForRead.Select(dto => new Schedule
         {
-            schedule.Teacher = teachersDir.GetValueOrDefault(schedule.Id);
-        }
+            Id = dto.Id,
+            DataWeek = dto.DataWeek,
+            StartCouple = dto.StartCouple,
+            EndCouple = dto.EndCouple,
+            Direction = dirDict.GetValueOrDefault(dto.DirectionId),
+            Discipline = discDict.GetValueOrDefault(dto.DisciplineId),
+            Teacher = teachDict.GetValueOrDefault(dto.TeacherId)
+        }).ToList();
         return schedules;
     }
     public List<Schedule> ReturnListForDirectionId(long dirId)

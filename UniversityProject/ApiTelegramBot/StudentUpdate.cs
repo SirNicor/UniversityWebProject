@@ -27,7 +27,7 @@ public class StudentUpdate : IStudentUpdate
     }
     public async Task StudentUpdateAsync(ChatId id, ITelegramBotClient botClient, long dirId, string type)
     {
-        var htmlOfstudents = _createMessageClass.StudentMessage(_directionRepository.Get(dirId).Students);
+        var htmlOfstudents = _createMessageClass.StudentMessage(_directionRepository.GetForId(dirId).Students);
         if (type == "text")
         {
             foreach (var student in htmlOfstudents)
@@ -39,7 +39,7 @@ public class StudentUpdate : IStudentUpdate
         {
             try
             {
-                var result = _createFileClass.StudentMessage(_directionRepository.Get(dirId).Students);
+                var result = _createFileClass.StudentMessage(_directionRepository.GetForId(dirId).Students);
                 await botClient.SendDocument(id, InputFile.FromStream(result, "Студенты.pdf"));
             }
             catch (Exception ex)

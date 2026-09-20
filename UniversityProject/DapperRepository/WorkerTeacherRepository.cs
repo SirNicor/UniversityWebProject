@@ -15,7 +15,23 @@ FROM view_teacher";
 
     private readonly string _connectionString = getConnectionString.ReturnConnectionString();
 
-    public Teacher Get(long id)
+    public List<Teacher> GetForIds(List<long> ids)
+    {
+        using IDbConnection db = new SqlConnection(_connectionString);
+        var teacher = db.Query<Teacher,  MillitaryClass, Passport, Address, Teacher>(
+            _sqlQuerySelect + " WHERE PersonId IN @ID",
+            (teacher, millitary, passport, address) =>
+            {
+                teacher.Millitary = millitary;
+                passport.Address = address;
+                teacher.Passport = passport;
+                return teacher;
+            }, new{ ID = ids},
+            splitOn: "MillitaryId, PassportId, AddressId").ToList();
+        return teacher;
+    }
+
+    public Teacher GetForId(long id)
     {
         using IDbConnection db = new SqlConnection(_connectionString);
         var teacher = db.Query<Teacher,  MillitaryClass, Passport, Address, Teacher>(
@@ -30,6 +46,7 @@ FROM view_teacher";
             splitOn: "MillitaryId, PassportId, AddressId").FirstOrDefault();
         return teacher;
     }
+
     public void PrintAll()
     {
         using IDbConnection db = new SqlConnection(_connectionString);

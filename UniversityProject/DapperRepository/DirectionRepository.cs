@@ -54,19 +54,21 @@ JOIN Discipline ds ON ds.Id = DoD.DisciplineId";
         }
     }
 
-    public Direction Get(long id)
+    public List<Direction> GetForIds(List<long> ids)
     {
         using IDbConnection db = new SqlConnection(_connectionString);
-        List<Student> students = db.Query<Student, Passport, Address, Student>(SqlSelectStudentOfDirectionQuery + "WHERE DirectionId = @Id",
-            (student, passport, address) =>
+        List<StudentOfDirectionDto> students = db.Query<StudentOfDirectionDto, Student, Passport, Address, StudentOfDirectionDto>(
+            SqlSelectStudentOfDirectionQuery + "WHERE DirectionId IN @Id",
+            (studentOfDirectionDto, student, passport, address) =>
             {
                 passport.Address = address;
                 student.Passport = passport;
-                return student;
+                studentOfDirectionDto.Student = student;
+                return studentOfDirectionDto;
             },
-            new { Id = id }, splitOn: "PersonId,PassportID,AddressID").ToList();
-        List<Discipline> disciplines = db.Query<Discipline>(SqlSelectDisciplineOfDirectionQuery + " WHERE DoD.DirectionId = @Id", new { Id = id }).ToList();
-        Direction direction = db.Query<Direction, Department, Faculty, University, Direction>(SqlSelectDirectionQuery + "WHERE DirectionId = @Id",
+            new { Id = ids }, splitOn: "PersonId,PassportID,AddressID").ToList();
+        List<DisciplineOfDirectionDto> disciplines = db.Query<DisciplineOfDirectionDto>(SqlSelectDisciplineOfDirectionQuery + " WHERE DoD.DirectionId IN @Id", new { Id = ids }).ToList();
+        var directions = db.Query<Direction, Department, Faculty, University, Direction>(SqlSelectDirectionQuery + "WHERE DirectionId IN @Id",
             (direction, department, faculty, university) =>
             {
                 faculty.University = university;
@@ -74,9 +76,43 @@ JOIN Discipline ds ON ds.Id = DoD.DisciplineId";
                 direction.Department = department;
                 return direction;
             },
-            new{ Id = id}, splitOn: "DirectionId,DepartmentId,FacultyId,UniversityId").Single();
-        direction.Students = students;
+            new{ Id = ids}, splitOn: "DirectionId,DepartmentId,FacultyId,UniversityId").ToList();
+        var dirStudents = students.GroupBy(x => x.DirectionId)
+            .ToDictionary(x => x.Key, x => x.Select(x1 => x1.Student).ToList());
+        var dirDisciplines = disciplines.GroupBy(x => x.DirectionId)
+            .ToDictionary(x => x.Key, x => x.Select(x1 => x1.Discipline).ToList());
+        foreach (var direction in directions)
+        {
+            direction.Students = dirStudents.GetValueOrDefault(direction.DirectionId);
+            direction.Disciplines = dirDisciplines.GetValueOrDefault(direction.DirectionId);
+        }
+        return directions;
+    }
+
+    public Direction GetForId(long id)
+    {
+        using IDbConnection db = new SqlConnection(_connectionString);
+        List<Student> student =  db.Query<Student, Passport, Address, Student>(
+            SqlSelectStudentOfDirectionQuery + "WHERE DirectionId = @Id",
+            (student, passport, address) =>
+            {
+                passport.Address = address;
+                student.Passport = passport;
+                return student;
+            },
+            new { Id = id }, splitOn: "PassportID,AddressID").ToList();
+        List<Discipline> disciplines = db.Query<Discipline>(SqlSelectDisciplineOfDirectionQuery + " WHERE DoD.DirectionId IN @Id", new { Id = id }).ToList();
+        var direction = db.Query<Direction, Department, Faculty, University, Direction>(SqlSelectDirectionQuery + "WHERE DirectionId = @Id",
+            (direction, department, faculty, university) =>
+            {
+                faculty.University = university;
+                department.Faculty = faculty;
+                direction.Department = department;
+                return direction;
+            },
+            new{ Id = id}, splitOn: "DirectionId,DepartmentId,FacultyId,UniversityId").First();
         direction.Disciplines = disciplines;
+        direction.Students = student;
         return direction;
     }
 

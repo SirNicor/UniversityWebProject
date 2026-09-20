@@ -1,8 +1,8 @@
-﻿namespace UCore;
+﻿namespace UCore.DTO;
 
-public class ScheduleDto
+public class ScheduleDtoForRead
 {
-    public long Id { get; set; }
+    public int Id { get; set; }
     public long DirectionId { get; set; }
     public long DisciplineId { get; set; }
     public long TeacherId { get; set; }

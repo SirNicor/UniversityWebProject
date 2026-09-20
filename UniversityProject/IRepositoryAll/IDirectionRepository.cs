@@ -5,7 +5,8 @@ using Logger;
 public interface IDirectionRepository
 {
     public long Create(DirectionDto direction);
-    public Direction Get(long id);
+    public List<Direction> GetForIds(List<long> ids);
+    public Direction GetForId(long id);
     public List<Direction> ReturnList();
     public void Delete(long id);
     public long Update(DirectionDto direction);

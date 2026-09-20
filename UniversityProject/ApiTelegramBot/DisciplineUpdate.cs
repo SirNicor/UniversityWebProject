@@ -25,7 +25,7 @@ public class DisciplineUpdate : IDisciplineUpdate
     public async Task DisciplineUpdateAsync(ChatId id, 
         ITelegramBotClient botClient, long dirId, string type)
     {
-        var htmlOfDisciplines = _createMessageClass.DisciplineMessage(_dirRepository.Get(dirId).Disciplines);
+        var htmlOfDisciplines = _createMessageClass.DisciplineMessage(_dirRepository.GetForId(dirId).Disciplines);
         if (type == "text")
         {
             foreach (var discipline in htmlOfDisciplines) 
@@ -37,7 +37,7 @@ public class DisciplineUpdate : IDisciplineUpdate
         {
             try
             {
-                var result = _createFileClass.DisciplineMessage(_dirRepository.Get(dirId).Disciplines);
+                var result = _createFileClass.DisciplineMessage(_dirRepository.GetForId(dirId).Disciplines);
                 await botClient.SendDocument(id, InputFile.FromStream(result, "Дисциплины.pdf"));
             }
             catch (Exception ex)

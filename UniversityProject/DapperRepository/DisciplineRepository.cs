@@ -14,7 +14,31 @@ public class DisciplineRepository(IGetConnectionString getConnectionString, MyLo
     FROM view_discipline";
     private readonly string _connectionString = getConnectionString.ReturnConnectionString();
     
-    public Discipline Get(long id)
+    public List<Discipline> GetForIds(List<long> ids)
+    {
+        using IDbConnection db = new SqlConnection(_connectionString);
+        List<TeacherOfDisciplineDto> teachers = db.Query<TeacherOfDisciplineDto, Teacher, Passport, Address, TeacherOfDisciplineDto>(
+            SqlSelectTacherOfDisciplineQuery + @"WHERE DisciplineId IN @ID", 
+            (teacherOfDisciplineDto,teacher, passport, address) =>
+            {
+                passport.Address = address;
+                teacher.Passport = passport;
+                teacherOfDisciplineDto.Teacher = teacher;
+                return teacherOfDisciplineDto;
+            },
+            new { Id = ids }, splitOn: "PersonId, PassportID, AddressID").ToList();
+        List<Discipline> disciplines = db.Query<Discipline>(_sqlSelectDisciplineQuery + @"WHERE Id IN @ID", new { ID = ids }).ToList();
+        var dictionaryTeachers = teachers
+            .GroupBy(t => t.DisciplineId)
+            .ToDictionary(x => x.Key, x => x.Select(ToD => ToD.Teacher).ToList());
+        foreach (var discipline in disciplines)
+        {
+            discipline.Teachers = dictionaryTeachers.GetValueOrDefault(discipline.DisciplineId);
+        }
+        return disciplines;
+    }
+
+    public Discipline GetForId(long id)
     {
         using IDbConnection db = new SqlConnection(_connectionString);
         List<Teacher> teachers = db.Query<Teacher, Passport, Address, Teacher>(
@@ -25,8 +49,8 @@ public class DisciplineRepository(IGetConnectionString getConnectionString, MyLo
                 teacher.Passport = passport;
                 return teacher;
             },
-            new { Id = id }, splitOn: "PassportId, AddressId").ToList();
-        Discipline discipline = db.Query<Discipline>(_sqlSelectDisciplineQuery + @"WHERE Id = @ID", new { id }).First();
+            new { Id = id }, splitOn: "PassportID, AddressID").ToList();
+        Discipline discipline = db.Query<Discipline>(_sqlSelectDisciplineQuery + @"WHERE Id = @ID", new { ID = id }).First();
         discipline.Teachers = teachers;
         return discipline;
     }
