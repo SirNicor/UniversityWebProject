@@ -5,6 +5,7 @@ using Repository;
 using Logger;
 using UJob;
 using IRepositoryAll;
+using Service;
 
 namespace Start;
 
@@ -57,5 +58,7 @@ public static class AddedInfrastructureServices
         services.AddScoped<IRegistrationRepository, RegistrationRepository>();
         services.AddScoped<FunctionOfBot, FunctionOfBot>();
         services.AddScoped<CreateFileClass, CreateFileClass>();
+        services.AddScoped<ILoginGroupService, LoginGroupService>();
+        services.AddScoped<IInfoPersonGroupService, InfoPersonGroupService>();
     }
 }

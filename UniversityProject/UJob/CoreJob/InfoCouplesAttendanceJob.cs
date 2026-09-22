@@ -1,8 +1,9 @@
-﻿namespace UJob;
+﻿using IRepositoryAll;
+
+namespace UJob;
 using Repository;
 using Logger;
 using UCore;
-using IRepositoryAll;
 
 public class InfoCouplesAttendanceJob : IJob, IInfoCouplesAttendanceJob
 {

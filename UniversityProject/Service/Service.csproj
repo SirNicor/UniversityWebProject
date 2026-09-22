@@ -7,11 +7,12 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\Logger\Logger.csproj" />
+      <ProjectReference Include="..\InterfaceRepository\InterfaceRepository.csproj" />
+      <ProjectReference Include="..\UCore\UCore.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="8.0.1" />
+      <PackageReference Include="Dadata" Version="25.7.0" />
     </ItemGroup>
 
 </Project>

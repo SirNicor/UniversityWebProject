@@ -6,6 +6,7 @@ using Repository.Migrations;
 using ApiTelegramBot;
 using Dapper;
 using Repository;
+using Service;
 using Start.Const;
 using Start.Middleware;
 

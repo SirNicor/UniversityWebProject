@@ -4,7 +4,9 @@ using System.Text.Json;
 using IRepositoryAll;
 using Logger;
 using Microsoft.IdentityModel.Tokens;
+using Service;
 using Start.Const;
+using Telegram.Bot.Types;
 using UCore;
 
 namespace Start.Request;
@@ -26,68 +28,21 @@ public static class AuthAndLoginRequest
         app.MapPost("/Login", async (HttpContext ctx, CancellationToken token) =>
         {
             logger.Info("@/Login", "AddAuthAndLoginRequest");
-            var authAndLoginRep = ctx.RequestServices.GetService<IAuthorizationRepository>();
-            var roleRep = ctx.RequestServices.GetService<IRoleRepository>();
+            var loginGroupService = ctx.RequestServices.GetService<ILoginGroupService>();
             using var reader = new StreamReader(ctx.Request.Body);
             var json = await reader.ReadToEndAsync(token);
             var requestData = JsonSerializer.Deserialize<JsonElement>(json);
             var auth = requestData.GetProperty("authorization").Deserialize<AuthorizationForGetJwtToken>();
-            var userIdAndRole = await authAndLoginRep.GetAuthorizationsRoleForIndexAsync(auth);
-            var userId = userIdAndRole.Item1;
-            var rolesId =  userIdAndRole.Item2;
-            if (userId is null)
+            var result = await loginGroupService.AsyncLogin(auth, token);
+            if (result == null)
             {
                 return Results.Unauthorized();
             }
-
-            bool checkPassword = await authAndLoginRep.CheckPasswordAsync(auth.Password, (long)userId);
-            if (!checkPassword)
-            {
-                return Results.Unauthorized();
-            }
-
-            var roles = roleRep.GetRoleAccess((int[])rolesId);
-            string[] nameRoles = new string[roles.Length];
-            for (int i = 0; i < roles.Length; i++)
-            {
-                nameRoles[i] = roles[i].NameRole;
-            }
-            var jwtPayload = new JwtPayload()
-            {
-                {"exp", DateTimeOffset.UtcNow.AddMinutes(Convert.ToInt64(configuration.GetSection("Auth:TimeAccessJwtToken").Value)).ToUnixTimeSeconds()},
-                {"aud", configuration.GetSection("Auth:Audience").Value},
-                { ClaimTypes.Name, auth.Login},
-                { ClaimTypes.Email, auth.Email},
-                {ClaimTypes.MobilePhone, auth.Phone},
-                { ClaimTypes.Role, nameRoles.ToList()},
-            };
-            var key = new SymmetricSecurityKey(Convert.FromBase64String(configuration["Auth:Key"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var header = new JwtHeader(creds);
-            var accessJwt = new JwtSecurityToken(
-                header: header,
-                payload: jwtPayload);
-            jwtPayload = new JwtPayload(){
-            { ClaimTypes.NameIdentifier, auth.Id.ToString() },
-            { "exp", DateTimeOffset.UtcNow.AddMinutes(Convert.ToInt64(configuration.GetSection("Auth:TimeRefreshJwtToken").Value)).ToUnixTimeSeconds()},
-            {"aud", configuration.GetSection("Auth:Audience").Value},       
-            { "token_type", "refresh" } 
-            };
-            var refreshJwt = new JwtSecurityToken(
-                header: header,
-                payload: jwtPayload);
-            RefreshJWTTokenDTO refreshJwtDto = new RefreshJWTTokenDTO
-            {
-                Token = new JwtSecurityTokenHandler().WriteToken(refreshJwt),
-                RevokedAt = false,
-                IdAuthorizationTable = (long)userId
-            };
-            await authAndLoginRep.CreateJwtTokenAsync(refreshJwtDto);
             return Results.Ok(new
             {
-                Accessjwt = new JwtSecurityTokenHandler().WriteToken(accessJwt),
-                Refreshjwt = new JwtSecurityTokenHandler().WriteToken(refreshJwt),
-                Role = roles
+                Accessjwt = new JwtSecurityTokenHandler().WriteToken(result.AccessToken),
+                Refreshjwt = new JwtSecurityTokenHandler().WriteToken(result.RefreshToken),
+                Role = result.Roles
             });
         });
         app.MapGet("/ResetAccessToken", async (HttpContext ctx) =>
@@ -95,72 +50,34 @@ public static class AuthAndLoginRequest
             logger.Info("@/ResetAccessToken", "AddAuthAndLoginRequest");
             var request = ctx.Request;
             request.Headers.TryGetValue("authorization", out var token);
-            var authAndLoginRep = ctx.RequestServices.GetService<IAuthorizationRepository>();
+            var loginGroupService = ctx.RequestServices.GetService<ILoginGroupService>();
             var x = token.ToString();
-            try
-            { 
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var claimsPrincipal = tokenHandler.ValidateToken(token, new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(configuration["Auth:Key"])),
-                    ValidateIssuer = false,
-                    ValidateAudience = true,
-                    ValidAudience = configuration["Auth:AUDIENCE"],
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero
-                }, out SecurityToken validatedToken);
-            }
-            catch
-            {
-                ctx.Response.StatusCode = 401;
-                await ctx.Response.WriteAsync(MessageRequestConst.MessageUnLoginForUnauthorized);
-            }
-            var ver = await authAndLoginRep.CheckAndUpdateJwtTokenAsync(x);
-            if (ver is null)
+            var result = await loginGroupService.AsyncResetAccessToken(x);
+            if (result == null)
             {
                 return Results.Unauthorized();
             }
 
-            var auth = await authAndLoginRep.GetForIdAuthorizationAsync((long)ver);
-            var roles = await authAndLoginRep.GetAllRolesAsync(auth.Role);
-            var jwtPayload = new JwtPayload()
+            if (result.Message != null)
             {
-                {"exp", DateTimeOffset.UtcNow.AddMinutes(Convert.ToInt64(configuration.GetSection("Auth:TimeAccessJwtToken").Value)).ToUnixTimeSeconds()},
-                {"aud", configuration.GetSection("Auth:Audience").Value},
-                { ClaimTypes.Name, auth.Login},
-                { ClaimTypes.Email, auth.Email},
-                {ClaimTypes.MobilePhone, auth.Phone},
-                { ClaimTypes.Role, roles.ToList()},
-            };
-            var key = new SymmetricSecurityKey(Convert.FromBase64String(configuration["Auth:Key"]));
-            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-            var header = new JwtHeader(creds);
-            var accessJwt = new JwtSecurityToken(
-                header: header,
-                payload: jwtPayload);
-            jwtPayload = new JwtPayload(){
-                { ClaimTypes.NameIdentifier, auth.Id.ToString() },
-                { "exp", DateTimeOffset.UtcNow.AddMinutes(Convert.ToInt64(configuration.GetSection("Auth:TimeRefreshJwtToken").Value)).ToUnixTimeSeconds()},
-                {"aud", configuration.GetSection("Auth:Audience").Value},
-                { "token_type", "refresh" } 
-            };
-            var refreshJwt = new JwtSecurityToken(
-                header: header,
-                payload: jwtPayload);
-            RefreshJWTTokenDTO refreshJwtDto = new RefreshJWTTokenDTO
-            {
-                Token = new JwtSecurityTokenHandler().WriteToken(refreshJwt),
-                RevokedAt = false,
-                IdAuthorizationTable = (long)auth.Id
-            };
-            await authAndLoginRep.CreateJwtTokenAsync(refreshJwtDto);
+                var mess = (typeof(MessageRequestConst)).GetProperty(result.Message).GetValue(null).ToString();
+                ctx.Response.ContentType = "application/json";
+                if (result.HttpCode == null)
+                {
+                    ctx.Response.StatusCode = (int)result.HttpCode;
+                }
+                else
+                {
+                    ctx.Response.StatusCode = 401;
+                }
+                await ctx.Response.WriteAsync(mess);
+            }
             return Results.Ok(new
             {
-                Accessjwt = new JwtSecurityTokenHandler().WriteToken(accessJwt),
-                Refreshjwt = new JwtSecurityTokenHandler().WriteToken(refreshJwt)
+                Accessjwt = new JwtSecurityTokenHandler().WriteToken(result.AccessToken),
+                Refreshjwt = new JwtSecurityTokenHandler().WriteToken(result.RefreshToken)
             });
         });
         app.MapGet("/CheckAccessToken", (HttpContext ctx) => Task.FromResult(Results.Ok()));
     }
-}
+}   

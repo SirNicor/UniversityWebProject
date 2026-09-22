@@ -9,8 +9,10 @@
     <ItemGroup>
       <ProjectReference Include="..\ApiTelegramBot\ApiTelegramBot.csproj" />
       <ProjectReference Include="..\EFRepository\EFRepository.csproj" />
+      <ProjectReference Include="..\InterfaceRepository\InterfaceRepository.csproj" />
       <ProjectReference Include="..\Logger\Logger.csproj" />
       <ProjectReference Include="..\DapperRepository\DapperRepository.csproj" />
+      <ProjectReference Include="..\Service\Service.csproj" />
       <ProjectReference Include="..\UCore\UCore.csproj" />
       <ProjectReference Include="..\UJob\UJob.csproj" />
     </ItemGroup>

@@ -7,7 +7,7 @@ namespace Start.Request;
 
 public static class FunctionForRequest
 {
-    public static StringBuilder PathReturn(string sortKey, Type typeOfClass, StringBuilder? path = null)
+    /*public static StringBuilder PathReturn(string sortKey, Type typeOfClass, StringBuilder? path = null)
     {
         if (path == null)
         {
@@ -36,21 +36,5 @@ public static class FunctionForRequest
 
         path.Length = 0;
         return path;
-    }
-
-    public static async Task<Address> CleanAddress(string address, IConfiguration configuration)
-    { 
-        var token = configuration.GetValue<string>("DaData:token");
-        var secret =  configuration.GetValue<string>("DaData:secret");
-        var api = new CleanClientAsync(token, secret);
-        var result = await api.Clean<Address>(address);
-        return result;
-    }
-    public static async Task<SuggestResponse<Address>> SuggestAddress(string address, IConfiguration configuration, CancellationToken cancellationToken)
-    { 
-        var token = configuration.GetValue<string>("DaData:token");
-        var api = new SuggestClientAsync(token);
-        var result = await api.SuggestAddress(address, 10, cancellationToken);
-        return result;
-    }
+    }*/
 }

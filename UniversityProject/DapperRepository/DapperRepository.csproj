@@ -8,7 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\IRepositoryAll\IRepositoryAll.csproj" />
+      <ProjectReference Include="..\InterfaceRepository\InterfaceRepository.csproj" />
       <ProjectReference Include="..\Logger\Logger.csproj" />
       <ProjectReference Include="..\UCore\UCore.csproj" />
     </ItemGroup>
